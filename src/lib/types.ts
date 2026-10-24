@@ -25,6 +25,7 @@ export interface Product {
   reviews: number;
   description: string;
   caution?: string;
+  image?: string;
 }
 
 /** Métrica de valor calculada no código (nunca pela IA). */

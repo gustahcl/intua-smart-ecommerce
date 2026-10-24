@@ -1,3 +1,7 @@
+"use client";
+
+import { useState } from "react";
+import Image from "next/image";
 import { Droplets, Dumbbell, FlaskConical, Leaf, Pill, Sparkles, Sun, type LucideIcon } from "lucide-react";
 import type { CatalogProduct } from "@/lib/types";
 
@@ -13,7 +17,10 @@ function pick(p: CatalogProduct): { Icon: LucideIcon; from: string; to: string }
   return { Icon: Leaf, from: "#E9F8EE", to: "#B4E5C4" };
 }
 
-/** Imagem ilustrativa do produto (o catálogo mock não tem fotos). */
+/**
+ * Exibe a foto do produto cadastrado ou o fallback estilizado com ícone caso a imagem
+ * não esteja disponível ou ocorra falha de carregamento.
+ */
 export function ProductVisual({
   product,
   className = "",
@@ -21,10 +28,31 @@ export function ProductVisual({
 }: {
   product: CatalogProduct;
   className?: string;
-  /** Miniatura: ícone menor e sem o nome da marca (que não cabe). */
+  /** Miniatura: ícone menor e sem o nome da marca. */
   small?: boolean;
 }) {
+  const [imageError, setImageError] = useState(false);
   const { Icon, from, to } = pick(product);
+
+  const showImage = Boolean(product.image && !imageError);
+
+  if (showImage && product.image) {
+    return (
+      <div className={`relative overflow-hidden rounded-lg bg-[#fafafa] ${className}`}>
+        <Image
+          src={product.image}
+          alt={product.name}
+          fill
+          unoptimized={product.image.endsWith(".svg")}
+          sizes={small ? "64px" : "(max-width: 768px) 50vw, 25vw"}
+          className={`object-contain transition-transform duration-300 hover:scale-105 ${small ? "p-1" : "p-2"}`}
+          onError={() => setImageError(true)}
+          priority={product.id <= 4}
+        />
+      </div>
+    );
+  }
+
   return (
     <div
       className={`relative flex items-center justify-center overflow-hidden rounded-lg ${className}`}
