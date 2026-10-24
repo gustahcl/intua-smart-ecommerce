@@ -1,6 +1,7 @@
 "use client";
 
-import { MessageCircle, ShoppingCart, Store } from "lucide-react";
+import { MessageCircle, ShoppingCart, Sparkles, Store } from "lucide-react";
+import Image from "next/image";
 import { useCallback, useRef, useState } from "react";
 import { CartBar } from "@/components/CartBar";
 import { Chat, type UiMessage } from "@/components/Chat";
@@ -18,8 +19,6 @@ const WELCOME: UiMessage = {
     "Oi! Eu sou a INTUA, sua assistente de compras. Me conta o que você procura, como um whey, um protetor solar ou uma rotina de skin care, e eu ajudo a encontrar, comparar e escolher.",
 };
 
-type Tab = "chat" | "shop";
-
 export default function Home() {
   const [messages, setMessages] = useState<UiMessage[]>([WELCOME]);
   const [loading, setLoading] = useState(false);
@@ -36,7 +35,9 @@ export default function Home() {
   const [query, setQuery] = useState("");
   const [category, setCategory] = useState<CategoryFilter>("todos");
   const [explainId, setExplainId] = useState<number | null>(null);
-  const [tab, setTab] = useState<Tab>("chat");
+
+  // No PC e mobile, o chat agora começa fechado e só abre quando solicitado
+  const [chatOpen, setChatOpen] = useState(false);
 
   const nextId = useRef(1);
 
@@ -117,12 +118,11 @@ export default function Home() {
   const total = cartTotal(cart);
 
   const openCart = () => {
-    setTab("shop");
     setCartOpen(true);
   };
 
   return (
-    <div className="flex h-dvh flex-col">
+    <div className="relative flex h-dvh flex-col overflow-hidden">
       <Header
         count={count}
         total={total}
@@ -130,7 +130,6 @@ export default function Home() {
         category={category}
         onQuery={(q) => {
           setQuery(q);
-          if (q) setTab("shop");
         }}
         onCart={openCart}
         onNav={(c) => {
@@ -140,30 +139,10 @@ export default function Home() {
       />
 
       <div className="flex min-h-0 flex-1">
-        <section
-          aria-label="Conversa com a INTUA"
-          className={cx(
-            "min-h-0 w-full lg:block lg:w-[420px] lg:flex-none",
-            tab === "chat" ? "block" : "hidden",
-          )}
-        >
-          <Chat
-            messages={messages}
-            loading={loading}
-            suggested={suggested}
-            handoff={handoff}
-            mode={mode}
-            onSend={send}
-            onViewShop={() => setTab("shop")}
-          />
-        </section>
-
+        {/* Vitrine e carrinho ocupam a tela inteira por padrão */}
         <section
           aria-label="Vitrine e carrinho"
-          className={cx(
-            "min-h-0 flex-1 overflow-y-auto bg-surface lg:block",
-            tab === "shop" ? "block" : "hidden",
-          )}
+          className="min-h-0 flex-1 overflow-y-auto bg-surface"
         >
           <CartBar
             cart={cart}
@@ -189,15 +168,85 @@ export default function Home() {
         </section>
       </div>
 
+      {/* Botão flutuante do bonequinho da INTUA com balão de chamada no canto inferior direito */}
+      {!chatOpen && (
+        <div className="fixed bottom-20 right-4 z-40 flex flex-col items-end gap-2.5 sm:bottom-6 sm:right-6">
+          {/* Balão com mensagem chamando para falar com a INTUA */}
+          <button
+            type="button"
+            onClick={() => setChatOpen(true)}
+            className="group relative flex items-center gap-2.5 rounded-2xl border border-slate-200 bg-white px-4 py-2.5 text-left shadow-xl transition-all duration-300 hover:-translate-y-0.5 hover:shadow-2xl"
+          >
+            <div className="flex flex-col">
+              <span className="flex items-center gap-1.5 text-xs font-bold text-navy">
+                <Sparkles className="h-3.5 w-3.5 text-brand" />
+                Oi! Precisa de ajuda?
+              </span>
+              <span className="text-[11px] text-slate-600">
+                Clique aqui para falar com a <strong className="text-brand">INTUA</strong> 👋
+              </span>
+            </div>
+            {/* Triângulo indicador do balão apontando para o bonequinho */}
+            <div
+              className="absolute -bottom-2 right-6 h-0 w-0 border-x-8 border-x-transparent border-t-8 border-t-white drop-shadow-sm"
+              aria-hidden="true"
+            />
+          </button>
+
+          {/* Bonequinho da INTUA (avatar do mascote) */}
+          <button
+            type="button"
+            onClick={() => setChatOpen(true)}
+            aria-label="Abrir assistente INTUA"
+            className="group relative flex h-16 w-16 items-center justify-center rounded-full bg-navy p-1 ring-4 ring-brand/30 shadow-2xl transition-all duration-300 hover:scale-110 hover:ring-brand active:scale-95"
+          >
+            <div className="relative h-full w-full overflow-hidden rounded-full ring-2 ring-white">
+              <Image
+                src="/brand/mascote-avatar.jpg"
+                alt="Mascote INTUA"
+                fill
+                sizes="64px"
+                className="object-cover"
+              />
+            </div>
+            {/* Indicador de status online com pulso */}
+            <span className="absolute bottom-0 right-0 flex h-4 w-4">
+              <span className="absolute inline-flex h-full w-full animate-ping rounded-full bg-emerald-400 opacity-75" />
+              <span className="relative inline-flex h-4 w-4 rounded-full border-2 border-white bg-emerald-500" />
+            </span>
+          </button>
+        </div>
+      )}
+
+      {/* Janela de chat aberta: no PC flutua no canto inferior direito; no mobile abre como modal sobreposto */}
+      {chatOpen && (
+        <section
+          aria-label="Conversa com a INTUA"
+          className="fixed inset-x-0 bottom-0 top-14 z-50 flex flex-col overflow-hidden rounded-t-2xl bg-navy shadow-2xl sm:inset-x-auto sm:bottom-6 sm:right-6 sm:top-auto sm:h-[620px] sm:max-h-[calc(100dvh-5rem)] sm:w-[420px] sm:rounded-2xl sm:border sm:border-white/10"
+        >
+          <Chat
+            messages={messages}
+            loading={loading}
+            suggested={suggested}
+            handoff={handoff}
+            mode={mode}
+            onSend={send}
+            onViewShop={() => setChatOpen(false)}
+            onClose={() => setChatOpen(false)}
+          />
+        </section>
+      )}
+
+      {/* Navegação inferior para celular */}
       <nav className="grid grid-cols-3 border-t border-white/10 bg-navy text-white lg:hidden" aria-label="Navegação">
         {(
           [
-            { key: "chat", label: "Conversar", Icon: MessageCircle, badge: 0, action: () => setTab("chat") },
-            { key: "shop", label: "Vitrine", Icon: Store, badge: recommended.length, action: () => setTab("shop") },
+            { key: "chat", label: "Falar com INTUA", Icon: MessageCircle, badge: 0, action: () => setChatOpen(true) },
+            { key: "shop", label: "Vitrine", Icon: Store, badge: recommended.length, action: () => setChatOpen(false) },
             { key: "cart", label: "Carrinho", Icon: ShoppingCart, badge: count, action: openCart },
           ] as const
         ).map(({ key, label, Icon, badge, action }) => {
-          const active = (key === "chat" && tab === "chat") || (key === "shop" && tab === "shop");
+          const active = (key === "chat" && chatOpen) || (key === "shop" && !chatOpen);
           return (
             <button
               key={key}
@@ -222,6 +271,7 @@ export default function Home() {
         })}
       </nav>
 
+      {/* Modal de explicação do produto */}
       {explainId !== null && (
         <ExplainModal
           productId={explainId}
@@ -229,7 +279,7 @@ export default function Home() {
           onClose={() => setExplainId(null)}
           onAsk={(text) => {
             setExplainId(null);
-            setTab("chat");
+            setChatOpen(true);
             void send(text);
           }}
         />

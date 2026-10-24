@@ -70,15 +70,16 @@ export function Showcase({
     />
   );
 
-  const grid = "grid grid-cols-2 gap-3 md:grid-cols-3 2xl:grid-cols-4";
+  // Grade responsiva e compacta: 2 colunas no mobile, 3 no sm, 4 no md, 5 no lg e 6 no xl/2xl
+  const grid = "grid grid-cols-2 gap-2.5 sm:grid-cols-3 sm:gap-3 md:grid-cols-4 lg:grid-cols-5 xl:grid-cols-6";
 
   return (
-    <div className="pb-8">
+    <div className="mx-auto max-w-[1600px] pb-12">
       <CompareTable ids={compareIds} onClose={onCloseCompare} onAdd={onAdd} />
 
       {searching ? (
-        <section className="px-4 pt-5">
-          <h2 className="mb-3 text-xl font-bold text-[#565656]">
+        <section className="px-3 pt-4 sm:px-5">
+          <h2 className="mb-3 text-lg font-bold text-[#565656] sm:text-xl">
             Resultados para &ldquo;{query.trim()}&rdquo;
           </h2>
           {results.length === 0 ? (
@@ -92,20 +93,20 @@ export function Showcase({
       ) : (
         <>
           {recProducts.length > 0 && (
-            <section className="px-4 pt-5">
+            <section className="px-3 pt-4 sm:px-5">
               <p className="flex items-center gap-1 text-xs font-medium text-promo">
                 <Sparkles className="h-3.5 w-3.5" /> Selecionados para você
               </p>
-              <h2 className="mb-3 border-b border-slate-200 pb-2 text-xl font-bold text-[#565656]">
+              <h2 className="mb-3 border-b border-slate-200 pb-2 text-lg font-bold text-[#565656] sm:text-xl">
                 Escolhas da INTUA
               </h2>
               <div className={grid}>{recProducts.map((p) => card(p, true))}</div>
             </section>
           )}
 
-          <section className="px-4 pt-6">
+          <section className="px-3 pt-5 sm:px-5">
             <p className="text-xs font-medium text-promo">Aproveite!</p>
-            <h2 className="border-b border-slate-200 pb-2 text-xl font-bold text-[#565656]">
+            <h2 className="border-b border-slate-200 pb-2 text-lg font-bold text-[#565656] sm:text-xl">
               {recProducts.length > 0 ? "Mais produtos" : "Ofertas em Dermo e Vida Saudável"}
             </h2>
             <div className="my-3 flex flex-wrap gap-2">
