@@ -10,14 +10,29 @@
     "size": "40 g",
     "sizeAmount": 40,
     "sizeUnit": "g",
-    "skinTypes": ["oleosa", "mista"],
-    "concerns": ["protecao solar", "oleosidade"],
+    "skinTypes": [
+      "oleosa",
+      "mista"
+    ],
+    "concerns": [
+      "protecao solar",
+      "oleosidade"
+    ],
     "fps": 60,
-    "actives": ["Filtros UVA/UVB", "Niacinamida 2%", "Pó controlador de brilho"],
-    "tags": ["toque seco", "não comedogênico", "uso diário"],
+    "actives": [
+      "Filtros UVA/UVB",
+      "Niacinamida 2%",
+      "Pó controlador de brilho"
+    ],
+    "tags": [
+      "toque seco",
+      "não comedogênico",
+      "uso diário"
+    ],
     "rating": 4.7,
     "reviews": 1284,
-    "description": "Protetor facial de toque seco que ajuda a reduzir o brilho ao longo do dia."
+    "description": "Protetor facial de toque seco que ajuda a reduzir o brilho ao longo do dia.",
+    "image": "/products/produto-1.jpg"
   },
   {
     "id": 2,
@@ -29,14 +44,26 @@
     "size": "200 ml",
     "sizeAmount": 200,
     "sizeUnit": "ml",
-    "skinTypes": ["todas"],
-    "concerns": ["protecao solar"],
+    "skinTypes": [
+      "todas"
+    ],
+    "concerns": [
+      "protecao solar"
+    ],
     "fps": 50,
-    "actives": ["Filtros UVA/UVB", "Vitamina E"],
-    "tags": ["resistente à água", "corpo", "secagem rápida"],
+    "actives": [
+      "Filtros UVA/UVB",
+      "Vitamina E"
+    ],
+    "tags": [
+      "resistente à água",
+      "corpo",
+      "secagem rápida"
+    ],
     "rating": 4.6,
     "reviews": 932,
-    "description": "Gel-creme de absorção rápida para o corpo, com resistência à água."
+    "description": "Gel-creme de absorção rápida para o corpo, com resistência à água.",
+    "image": "/products/produto-2.jpg"
   },
   {
     "id": 3,
@@ -48,14 +75,30 @@
     "size": "50 g",
     "sizeAmount": 50,
     "sizeUnit": "g",
-    "skinTypes": ["seca", "normal", "sensivel"],
-    "concerns": ["protecao solar", "hidratacao"],
+    "skinTypes": [
+      "seca",
+      "normal",
+      "sensivel"
+    ],
+    "concerns": [
+      "protecao solar",
+      "hidratacao"
+    ],
     "fps": 50,
-    "actives": ["Filtros UVA/UVB", "Ácido hialurônico", "Ceramidas"],
-    "tags": ["hidratante", "sem perfume", "uso diário"],
+    "actives": [
+      "Filtros UVA/UVB",
+      "Ácido hialurônico",
+      "Ceramidas"
+    ],
+    "tags": [
+      "hidratante",
+      "sem perfume",
+      "uso diário"
+    ],
     "rating": 4.8,
     "reviews": 764,
-    "description": "Protetor com textura cremosa que combina proteção solar e hidratação."
+    "description": "Protetor com textura cremosa que combina proteção solar e hidratação.",
+    "image": "/products/produto-3.jpg"
   },
   {
     "id": 4,
@@ -67,15 +110,28 @@
     "size": "120 ml",
     "sizeAmount": 120,
     "sizeUnit": "ml",
-    "skinTypes": ["sensivel", "todas"],
-    "concerns": ["protecao solar"],
+    "skinTypes": [
+      "sensivel",
+      "todas"
+    ],
+    "concerns": [
+      "protecao solar"
+    ],
     "fps": 60,
-    "actives": ["Filtros UVA/UVB", "Pantenol"],
-    "tags": ["infantil", "resistente à água", "sem perfume"],
+    "actives": [
+      "Filtros UVA/UVB",
+      "Pantenol"
+    ],
+    "tags": [
+      "infantil",
+      "resistente à água",
+      "sem perfume"
+    ],
     "rating": 4.8,
     "reviews": 611,
     "description": "Protetor para crianças, resistente à água e sem perfume.",
-    "caution": "Não indicado para bebês menores de 6 meses. Em caso de dúvida, consulte o pediatra ou um farmacêutico."
+    "caution": "Não indicado para bebês menores de 6 meses. Em caso de dúvida, consulte o pediatra ou um farmacêutico.",
+    "image": "/products/produto-4.jpg"
   },
   {
     "id": 5,
@@ -87,14 +143,28 @@
     "size": "150 ml",
     "sizeAmount": 150,
     "sizeUnit": "ml",
-    "skinTypes": ["oleosa", "mista"],
-    "concerns": ["oleosidade", "acne", "limpeza"],
-    "actives": ["Ácido salicílico 0,5%", "Zinco PCA"],
-    "tags": ["limpeza diária", "espuma leve"],
+    "skinTypes": [
+      "oleosa",
+      "mista"
+    ],
+    "concerns": [
+      "oleosidade",
+      "acne",
+      "limpeza"
+    ],
+    "actives": [
+      "Ácido salicílico 0,5%",
+      "Zinco PCA"
+    ],
+    "tags": [
+      "limpeza diária",
+      "espuma leve"
+    ],
     "rating": 4.6,
     "reviews": 1502,
     "description": "Gel de limpeza diária que remove o excesso de oleosidade sem agredir.",
-    "caution": "Pode causar ressecamento em peles sensibilizadas. Suspenda o uso se houver irritação."
+    "caution": "Pode causar ressecamento em peles sensibilizadas. Suspenda o uso se houver irritação.",
+    "image": "/products/produto-5.svg"
   },
   {
     "id": 6,
@@ -106,13 +176,27 @@
     "size": "200 ml",
     "sizeAmount": 200,
     "sizeUnit": "ml",
-    "skinTypes": ["seca", "sensivel", "normal"],
-    "concerns": ["limpeza", "sensibilidade"],
-    "actives": ["Glicerina", "Pantenol"],
-    "tags": ["sem perfume", "limpeza suave"],
+    "skinTypes": [
+      "seca",
+      "sensivel",
+      "normal"
+    ],
+    "concerns": [
+      "limpeza",
+      "sensibilidade"
+    ],
+    "actives": [
+      "Glicerina",
+      "Pantenol"
+    ],
+    "tags": [
+      "sem perfume",
+      "limpeza suave"
+    ],
     "rating": 4.7,
     "reviews": 688,
-    "description": "Limpeza suave que respeita a barreira da pele, sem perfume."
+    "description": "Limpeza suave que respeita a barreira da pele, sem perfume.",
+    "image": "/products/produto-6.svg"
   },
   {
     "id": 7,
@@ -124,13 +208,27 @@
     "size": "50 g",
     "sizeAmount": 50,
     "sizeUnit": "g",
-    "skinTypes": ["oleosa", "mista"],
-    "concerns": ["hidratacao", "oleosidade"],
-    "actives": ["Ácido hialurônico", "Niacinamida 2%"],
-    "tags": ["oil-free", "não comedogênico", "textura gel"],
+    "skinTypes": [
+      "oleosa",
+      "mista"
+    ],
+    "concerns": [
+      "hidratacao",
+      "oleosidade"
+    ],
+    "actives": [
+      "Ácido hialurônico",
+      "Niacinamida 2%"
+    ],
+    "tags": [
+      "oil-free",
+      "não comedogênico",
+      "textura gel"
+    ],
     "rating": 4.5,
     "reviews": 903,
-    "description": "Gel leve que hidrata sem pesar, indicado para pele oleosa e mista."
+    "description": "Gel leve que hidrata sem pesar, indicado para pele oleosa e mista.",
+    "image": "/products/produto-7.svg"
   },
   {
     "id": 8,
@@ -142,13 +240,27 @@
     "size": "50 g",
     "sizeAmount": 50,
     "sizeUnit": "g",
-    "skinTypes": ["seca", "sensivel"],
-    "concerns": ["hidratacao", "sensibilidade"],
-    "actives": ["Ceramidas", "Ácido hialurônico", "Manteiga de karité"],
-    "tags": ["barreira cutânea", "textura cremosa"],
+    "skinTypes": [
+      "seca",
+      "sensivel"
+    ],
+    "concerns": [
+      "hidratacao",
+      "sensibilidade"
+    ],
+    "actives": [
+      "Ceramidas",
+      "Ácido hialurônico",
+      "Manteiga de karité"
+    ],
+    "tags": [
+      "barreira cutânea",
+      "textura cremosa"
+    ],
     "rating": 4.8,
     "reviews": 540,
-    "description": "Creme rico que ajuda a repor a barreira da pele seca ou sensível."
+    "description": "Creme rico que ajuda a repor a barreira da pele seca ou sensível.",
+    "image": "/products/produto-8.jpg"
   },
   {
     "id": 9,
@@ -160,14 +272,29 @@
     "size": "30 ml",
     "sizeAmount": 30,
     "sizeUnit": "ml",
-    "skinTypes": ["oleosa", "mista", "normal"],
-    "concerns": ["manchas", "oleosidade", "poros"],
-    "actives": ["Niacinamida 10%", "Zinco"],
-    "tags": ["uniformiza o tom", "uso diário"],
+    "skinTypes": [
+      "oleosa",
+      "mista",
+      "normal"
+    ],
+    "concerns": [
+      "manchas",
+      "oleosidade",
+      "poros"
+    ],
+    "actives": [
+      "Niacinamida 10%",
+      "Zinco"
+    ],
+    "tags": [
+      "uniformiza o tom",
+      "uso diário"
+    ],
     "rating": 4.6,
     "reviews": 1177,
     "description": "Sérum que ajuda a uniformizar o tom e a controlar a oleosidade.",
-    "caution": "Faça um teste em pequena área antes do primeiro uso."
+    "caution": "Faça um teste em pequena área antes do primeiro uso.",
+    "image": "/products/produto-9.jpg"
   },
   {
     "id": 10,
@@ -180,14 +307,29 @@
     "size": "30 ml",
     "sizeAmount": 30,
     "sizeUnit": "ml",
-    "skinTypes": ["normal", "mista", "seca"],
-    "concerns": ["manchas", "luminosidade"],
-    "actives": ["Vitamina C 10%", "Vitamina E", "Ácido ferúlico"],
-    "tags": ["antioxidante", "uso pela manhã"],
+    "skinTypes": [
+      "normal",
+      "mista",
+      "seca"
+    ],
+    "concerns": [
+      "manchas",
+      "luminosidade"
+    ],
+    "actives": [
+      "Vitamina C 10%",
+      "Vitamina E",
+      "Ácido ferúlico"
+    ],
+    "tags": [
+      "antioxidante",
+      "uso pela manhã"
+    ],
     "rating": 4.7,
     "reviews": 856,
     "description": "Sérum antioxidante para uso pela manhã, sempre seguido de protetor solar.",
-    "caution": "Use protetor solar durante o dia. Faça um teste em pequena área antes do primeiro uso."
+    "caution": "Use protetor solar durante o dia. Faça um teste em pequena área antes do primeiro uso.",
+    "image": "/products/produto-10.jpg"
   },
   {
     "id": 11,
@@ -199,14 +341,25 @@
     "size": "15 g",
     "sizeAmount": 15,
     "sizeUnit": "g",
-    "skinTypes": ["oleosa", "mista"],
-    "concerns": ["acne"],
-    "actives": ["Ácido salicílico 1%", "Enxofre"],
-    "tags": ["uso pontual"],
+    "skinTypes": [
+      "oleosa",
+      "mista"
+    ],
+    "concerns": [
+      "acne"
+    ],
+    "actives": [
+      "Ácido salicílico 1%",
+      "Enxofre"
+    ],
+    "tags": [
+      "uso pontual"
+    ],
     "rating": 4.4,
     "reviews": 1320,
     "description": "Gel de aplicação pontual para espinhas ocasionais.",
-    "caution": "Pode ressecar e irritar. Acne persistente, inflamada ou com dor deve ser avaliada por um dermatologista."
+    "caution": "Pode ressecar e irritar. Acne persistente, inflamada ou com dor deve ser avaliada por um dermatologista.",
+    "image": "/products/produto-11.svg"
   },
   {
     "id": 12,
@@ -218,13 +371,24 @@
     "size": "400 ml",
     "sizeAmount": 400,
     "sizeUnit": "ml",
-    "skinTypes": ["todas"],
-    "concerns": ["limpeza"],
-    "actives": ["Glicerina", "Poloxamer"],
-    "tags": ["remove maquiagem", "sem enxágue"],
+    "skinTypes": [
+      "todas"
+    ],
+    "concerns": [
+      "limpeza"
+    ],
+    "actives": [
+      "Glicerina",
+      "Poloxamer"
+    ],
+    "tags": [
+      "remove maquiagem",
+      "sem enxágue"
+    ],
     "rating": 4.6,
     "reviews": 2011,
-    "description": "Limpa e remove maquiagem sem necessidade de enxágue."
+    "description": "Limpa e remove maquiagem sem necessidade de enxágue.",
+    "image": "/products/produto-12.svg"
   },
   {
     "id": 13,
@@ -240,13 +404,25 @@
     "servings": 30,
     "servingSize": "30 g",
     "proteinPerServingG": 24,
-    "concerns": ["massa muscular", "pos-treino"],
-    "actives": ["Proteína do soro do leite concentrada"],
-    "diet": ["contém lactose"],
-    "tags": ["ganho de massa", "pós-treino", "custo-benefício"],
+    "concerns": [
+      "massa muscular",
+      "pos-treino"
+    ],
+    "actives": [
+      "Proteína do soro do leite concentrada"
+    ],
+    "diet": [
+      "contém lactose"
+    ],
+    "tags": [
+      "ganho de massa",
+      "pós-treino",
+      "custo-benefício"
+    ],
     "rating": 4.7,
     "reviews": 3420,
-    "description": "Whey concentrado com 24 g de proteína por porção de 30 g."
+    "description": "Whey concentrado com 24 g de proteína por porção de 30 g.",
+    "image": "/products/produto-13.jpg"
   },
   {
     "id": 14,
@@ -261,13 +437,25 @@
     "servings": 30,
     "servingSize": "30 g",
     "proteinPerServingG": 27,
-    "concerns": ["massa muscular", "pos-treino"],
-    "actives": ["Proteína isolada do soro do leite"],
-    "diet": ["baixo teor de lactose"],
-    "tags": ["alta pureza", "pós-treino", "ganho de massa"],
+    "concerns": [
+      "massa muscular",
+      "pos-treino"
+    ],
+    "actives": [
+      "Proteína isolada do soro do leite"
+    ],
+    "diet": [
+      "baixo teor de lactose"
+    ],
+    "tags": [
+      "alta pureza",
+      "pós-treino",
+      "ganho de massa"
+    ],
     "rating": 4.8,
     "reviews": 1890,
-    "description": "Whey isolado com 27 g de proteína por porção e baixo teor de lactose."
+    "description": "Whey isolado com 27 g de proteína por porção e baixo teor de lactose.",
+    "image": "/products/produto-14.jpg"
   },
   {
     "id": 15,
@@ -282,13 +470,25 @@
     "servings": 15,
     "servingSize": "30 g",
     "proteinPerServingG": 20,
-    "concerns": ["massa muscular", "pos-treino"],
-    "actives": ["Proteína do soro do leite concentrada"],
-    "diet": ["contém lactose"],
-    "tags": ["econômico", "ganho de massa", "pós-treino"],
+    "concerns": [
+      "massa muscular",
+      "pos-treino"
+    ],
+    "actives": [
+      "Proteína do soro do leite concentrada"
+    ],
+    "diet": [
+      "contém lactose"
+    ],
+    "tags": [
+      "econômico",
+      "ganho de massa",
+      "pós-treino"
+    ],
     "rating": 4.3,
     "reviews": 1045,
-    "description": "Whey concentrado em embalagem menor, com 20 g de proteína por porção."
+    "description": "Whey concentrado em embalagem menor, com 20 g de proteína por porção.",
+    "image": "/products/produto-15.jpg"
   },
   {
     "id": 16,
@@ -303,13 +503,26 @@
     "servings": 17,
     "servingSize": "35 g",
     "proteinPerServingG": 21,
-    "concerns": ["massa muscular", "pos-treino"],
-    "actives": ["Proteína de ervilha", "Proteína de arroz"],
-    "diet": ["vegano", "sem lactose"],
-    "tags": ["vegano", "ganho de massa"],
+    "concerns": [
+      "massa muscular",
+      "pos-treino"
+    ],
+    "actives": [
+      "Proteína de ervilha",
+      "Proteína de arroz"
+    ],
+    "diet": [
+      "vegano",
+      "sem lactose"
+    ],
+    "tags": [
+      "vegano",
+      "ganho de massa"
+    ],
     "rating": 4.4,
     "reviews": 512,
-    "description": "Blend vegano de ervilha e arroz com 21 g de proteína por porção."
+    "description": "Blend vegano de ervilha e arroz com 21 g de proteína por porção.",
+    "image": "/products/produto-16.svg"
   },
   {
     "id": 17,
@@ -323,14 +536,26 @@
     "sizeUnit": "g",
     "servings": 100,
     "servingSize": "3 g",
-    "concerns": ["performance", "treino de forca"],
-    "actives": ["Creatina monohidratada"],
-    "diet": ["vegano", "sem lactose"],
-    "tags": ["performance", "treino de força"],
+    "concerns": [
+      "performance",
+      "treino de forca"
+    ],
+    "actives": [
+      "Creatina monohidratada"
+    ],
+    "diet": [
+      "vegano",
+      "sem lactose"
+    ],
+    "tags": [
+      "performance",
+      "treino de força"
+    ],
     "rating": 4.8,
     "reviews": 2763,
     "description": "Creatina monohidratada em pó, porção de 3 g conforme o rótulo.",
-    "caution": "Quem tem condição de saúde ou usa medicamentos deve conversar com um profissional antes de usar suplementos."
+    "caution": "Quem tem condição de saúde ou usa medicamentos deve conversar com um profissional antes de usar suplementos.",
+    "image": "/products/produto-17.svg"
   },
   {
     "id": 18,
@@ -344,13 +569,21 @@
     "sizeUnit": "cápsulas",
     "servings": 60,
     "servingSize": "1 cápsula",
-    "concerns": ["rotina"],
-    "actives": ["Vitaminas", "Minerais"],
-    "tags": ["rotina diária"],
+    "concerns": [
+      "rotina"
+    ],
+    "actives": [
+      "Vitaminas",
+      "Minerais"
+    ],
+    "tags": [
+      "rotina diária"
+    ],
     "rating": 4.5,
     "reviews": 1658,
     "description": "Multivitamínico em cápsulas, uma por dia conforme o rótulo.",
-    "caution": "Suplementos não substituem uma alimentação equilibrada. Gestantes, lactantes e pessoas em tratamento médico devem consultar um profissional."
+    "caution": "Suplementos não substituem uma alimentação equilibrada. Gestantes, lactantes e pessoas em tratamento médico devem consultar um profissional.",
+    "image": "/products/produto-18.jpg"
   },
   {
     "id": 19,
@@ -364,13 +597,21 @@
     "sizeUnit": "cápsulas",
     "servings": 60,
     "servingSize": "2 cápsulas",
-    "concerns": ["rotina"],
-    "actives": ["EPA", "DHA"],
-    "tags": ["óleo de peixe"],
+    "concerns": [
+      "rotina"
+    ],
+    "actives": [
+      "EPA",
+      "DHA"
+    ],
+    "tags": [
+      "óleo de peixe"
+    ],
     "rating": 4.5,
     "reviews": 1321,
     "description": "Cápsulas de óleo de peixe com EPA e DHA.",
-    "caution": "Quem usa anticoagulantes ou outros medicamentos deve consultar um médico ou farmacêutico antes de usar."
+    "caution": "Quem usa anticoagulantes ou outros medicamentos deve consultar um médico ou farmacêutico antes de usar.",
+    "image": "/products/produto-19.jpg"
   },
   {
     "id": 20,
@@ -384,13 +625,24 @@
     "sizeUnit": "g",
     "servings": 30,
     "servingSize": "10 g",
-    "concerns": ["rotina", "beleza"],
-    "actives": ["Colágeno hidrolisado"],
-    "diet": ["sem lactose"],
-    "tags": ["sem sabor", "beleza"],
+    "concerns": [
+      "rotina",
+      "beleza"
+    ],
+    "actives": [
+      "Colágeno hidrolisado"
+    ],
+    "diet": [
+      "sem lactose"
+    ],
+    "tags": [
+      "sem sabor",
+      "beleza"
+    ],
     "rating": 4.4,
     "reviews": 977,
-    "description": "Colágeno hidrolisado sem sabor, porção de 10 g conforme o rótulo."
+    "description": "Colágeno hidrolisado sem sabor, porção de 10 g conforme o rótulo.",
+    "image": "/products/produto-20.jpg"
   },
   {
     "id": 21,
@@ -402,14 +654,29 @@
     "size": "40 g",
     "sizeAmount": 40,
     "sizeUnit": "g",
-    "skinTypes": ["oleosa", "mista", "normal"],
-    "concerns": ["protecao solar", "oleosidade"],
+    "skinTypes": [
+      "oleosa",
+      "mista",
+      "normal"
+    ],
+    "concerns": [
+      "protecao solar",
+      "oleosidade"
+    ],
     "fps": 50,
-    "actives": ["Filtros UVA/UVB", "Vitamina E"],
-    "tags": ["toque seco", "fluido", "uso diário"],
+    "actives": [
+      "Filtros UVA/UVB",
+      "Vitamina E"
+    ],
+    "tags": [
+      "toque seco",
+      "fluido",
+      "uso diário"
+    ],
     "rating": 4.4,
     "reviews": 874,
-    "description": "Fluido leve de toque seco para o uso diário, com boa relação custo-benefício."
+    "description": "Fluido leve de toque seco para o uso diário, com boa relação custo-benefício.",
+    "image": "/products/produto-21.svg"
   },
   {
     "id": 22,
@@ -422,13 +689,29 @@
     "size": "50 g",
     "sizeAmount": 50,
     "sizeUnit": "g",
-    "skinTypes": ["oleosa", "mista"],
-    "concerns": ["protecao solar", "oleosidade", "manchas"],
+    "skinTypes": [
+      "oleosa",
+      "mista"
+    ],
+    "concerns": [
+      "protecao solar",
+      "oleosidade",
+      "manchas"
+    ],
     "fps": 70,
-    "actives": ["Filtros UVA/UVB", "Niacinamida 2%", "Zinco PCA"],
-    "tags": ["oil-free", "não comedogênico", "textura gel"],
+    "actives": [
+      "Filtros UVA/UVB",
+      "Niacinamida 2%",
+      "Zinco PCA"
+    ],
+    "tags": [
+      "oil-free",
+      "não comedogênico",
+      "textura gel"
+    ],
     "rating": 4.7,
     "reviews": 1033,
-    "description": "Gel oil-free com FPS alto, indicado para pele oleosa e mista."
+    "description": "Gel oil-free com FPS alto, indicado para pele oleosa e mista.",
+    "image": "/products/produto-22.svg"
   }
 ]

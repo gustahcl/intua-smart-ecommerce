@@ -1,6 +1,6 @@
 "use client";
 
-import { ArrowRight, Send, Sparkles, Stethoscope } from "lucide-react";
+import { ArrowRight, Send, Sparkles, Stethoscope, X } from "lucide-react";
 import Image from "next/image";
 import { useEffect, useRef, useState } from "react";
 import { cx } from "@/lib/cx";
@@ -20,6 +20,7 @@ interface Props {
   mode: "ai" | "demo" | null;
   onSend: (text: string) => void;
   onViewShop: () => void;
+  onClose?: () => void;
 }
 
 const STATUS = ["Entendendo o que você precisa…", "Consultando o catálogo…", "Preparando recomendações…"];
@@ -96,7 +97,7 @@ function HandoffCard() {
   );
 }
 
-export function Chat({ messages, loading, suggested, handoff, mode, onSend, onViewShop }: Props) {
+export function Chat({ messages, loading, suggested, handoff, mode, onSend, onViewShop, onClose }: Props) {
   const [draft, setDraft] = useState("");
   const bottomRef = useRef<HTMLDivElement>(null);
 
@@ -114,7 +115,7 @@ export function Chat({ messages, loading, suggested, handoff, mode, onSend, onVi
   };
 
   return (
-    <div className="flex h-full min-h-0 flex-col bg-navy text-white">
+    <div className="flex h-full min-h-0 flex-col bg-navy text-white shadow-2xl">
       <div className="flex items-center gap-3 border-b border-white/10 px-4 py-3">
         <Avatar size={40} />
         <div className="min-w-0 flex-1">
@@ -137,6 +138,16 @@ export function Chat({ messages, loading, suggested, handoff, mode, onSend, onVi
           >
             {mode === "demo" ? "Modo demo" : "IA ativa"}
           </span>
+        )}
+        {onClose && (
+          <button
+            type="button"
+            onClick={onClose}
+            aria-label="Fechar assistente"
+            className="flex h-8 w-8 items-center justify-center rounded-full text-white/70 transition-colors hover:bg-white/10 hover:text-white"
+          >
+            <X className="h-5 w-5" />
+          </button>
         )}
       </div>
 
@@ -168,7 +179,7 @@ export function Chat({ messages, loading, suggested, handoff, mode, onSend, onVi
                   <button
                     type="button"
                     onClick={onViewShop}
-                    className="mt-1.5 flex items-center gap-1 text-xs font-medium text-ai hover:underline lg:hidden"
+                    className="mt-1.5 flex items-center gap-1 text-xs font-medium text-ai hover:underline"
                   >
                     Ver {m.productIds.length} {m.productIds.length === 1 ? "produto" : "produtos"} na vitrine
                     <ArrowRight className="h-3.5 w-3.5" />
