@@ -128,7 +128,7 @@ export function Chat({ messages, loading, suggested, handoff, mode, onSend, onVi
             title={
               mode === "demo"
                 ? "Sem chave da API: respostas por roteiro de regras, não por IA."
-                : "Respostas geradas pelo modelo Claude com ferramentas do catálogo."
+                : "Respostas geradas por IA (Groq ou Gemini) com ferramentas do catálogo."
             }
             className={cx(
               "rounded-full px-2.5 py-1 text-[10px] font-bold uppercase tracking-wide",
