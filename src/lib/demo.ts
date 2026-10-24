@@ -3,10 +3,10 @@ import { cartSummary, newUi, toResponse, type UiState } from "./tools";
 import type { CatalogProduct, ChatMessage, ChatResponse } from "./types";
 
 /**
- * Motor de regras usado quando não há ANTHROPIC_API_KEY (ou quando a API falha).
+ * Motor de regras usado quando não há chave de IA (GROQ_API_KEY/GEMINI_API_KEY) (ou quando a API falha).
  * NÃO é IA: é um roteiro determinístico que cobre os fluxos de demonstração
  * (whey, protetor solar, kit de rotina, comparar, mais barato, carrinho) usando
- * as mesmas funções de catálogo e o mesmo contrato de resposta da versão com Claude.
+ * as mesmas funções de catálogo e o mesmo contrato de resposta da versão com IA.
  */
 
 interface DemoInput {

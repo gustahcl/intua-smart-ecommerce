@@ -10,16 +10,16 @@ Requer Node 20 ou superior.
 
 ```bash
 npm install
-cp .env.example .env.local   # depois preencha ANTHROPIC_API_KEY
+cp .env.example .env.local   # depois preencha GROQ_API_KEY (grátis)
 npm run dev                  # http://localhost:3000
 ```
 
 | Situação | O que acontece |
 |---|---|
-| Com `ANTHROPIC_API_KEY` | O chat usa o Claude com ferramentas (tool use). Selo **IA ativa** no chat. |
+| Com `GROQ_API_KEY` e/ou `GEMINI_API_KEY` | O chat usa IA com ferramentas (tool calling): tenta Groq, depois Gemini. Selo **IA ativa** no chat. |
 | Sem chave, ou se a API falhar | Cai no **modo demonstração**: roteiro de regras, **não é IA**. Selo **Modo demo** no chat, para ninguém confundir na apresentação. |
 
-Modelo padrão: `claude-haiku-5-5` (rápido e barato). Troque em `ANTHROPIC_MODEL` por `claude-sonnet-5-5` se quiser mais qualidade.
+**Custo zero:** Groq e Gemini têm plano gratuito (com limite de requisições por minuto e por dia; ao estourar, a rota cai sozinha para o próximo provedor e, no fim, para o modo demo). Modelos padrão: `llama-3.3-70b-versatile` (Groq) e `gemini-2.5-flash` (Gemini), trocáveis em `GROQ_MODEL` e `GEMINI_MODEL`. No plano grátis do Gemini o Google pode usar os dados enviados para melhorar seus produtos: não use dados reais de clientes. Deploy gratuito: Vercel (plano Hobby), com as chaves em *Environment Variables*.
 
 ## Roteiro de demonstração (3 fluxos ensaiados)
 
@@ -34,7 +34,7 @@ Bônus de segurança: "estou grávida, posso tomar ômega 3?" → a INTUA não r
 ## Como funciona
 
 ```
-Cliente ── chat ──▶ /api/chat ──▶ Claude (tool use) ──▶ ferramentas ──▶ catálogo
+Cliente ── chat ──▶ /api/chat ──▶ Groq / Gemini (tool calling) ──▶ ferramentas ──▶ catálogo
    ▲                                                         │
    └──── vitrine, comparador, carrinho, avisos ◀── UiState ──┘
 ```
@@ -68,6 +68,7 @@ src/app/page.tsx            estado da tela (chat, vitrine, carrinho)
 src/app/api/chat/route.ts   validação, rate limit, loop de tool use
 src/lib/catalog.ts          catálogo, busca e métricas de custo-benefício
 src/lib/tools.ts            ferramentas da IA e montagem da resposta
+src/lib/llm.ts              cliente Groq/Gemini (formato OpenAI, via fetch)
 src/lib/system-prompt.ts    persona e regras de segurança em saúde
 src/lib/demo.ts             modo demonstração (regras, sem IA)
 src/components/             Header, Chat, Showcase, ProductCard, CartBar, CompareTable, ExplainModal
@@ -99,4 +100,4 @@ src/data/products.json      22 produtos mock
 - O checkout não existe: o botão "Finalizar compra" apenas informa que está fora do escopo.
 - A regra de frete grátis (a partir de R$ 150) foi copiada do site, sem as condições reais.
 - A resposta do chat não usa streaming; há um indicador de progresso enquanto carrega.
-- O caminho com IA foi testado com um servidor simulado da API (loop de ferramentas, IDs inválidos, carrinho, farmacêutico), mas **não com a API real**: rode os fluxos acima com sua chave antes da apresentação.
+- O caminho com IA foi testado com um servidor simulado no formato OpenAI (loop de ferramentas, IDs inválidos, números como texto, queda para o próximo provedor), mas **não com as APIs reais**: rode os fluxos acima com sua chave do Groq antes da apresentação.

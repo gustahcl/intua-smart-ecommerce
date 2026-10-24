@@ -1,7 +1,7 @@
-import Anthropic from "@anthropic-ai/sdk";
 import { NextRequest, NextResponse } from "next/server";
 import { z } from "zod";
 import { runDemo } from "@/lib/demo";
+import { complete, configuredProviders, type LlmMessage, type Provider } from "@/lib/llm";
 import { rateLimit } from "@/lib/ratelimit";
 import { buildSystemPrompt } from "@/lib/system-prompt";
 import { TOOLS, newUi, runTool, toResponse } from "@/lib/tools";
@@ -27,6 +27,44 @@ const BodySchema = z.object({
 });
 
 const MAX_TOOL_ROUNDS = 6;
+
+type Cart = { productId: number; quantity: number }[];
+
+/** Roda o loop de ferramentas em um provedor. Lança erro se a API falhar. */
+async function runWithProvider(p: Provider, history: ChatMessage[], cart: Cart, shownProductIds: number[]) {
+  const ctx = { cart: new Map(cart.map((c) => [c.productId, c.quantity])), ui: newUi() };
+  const messages: LlmMessage[] = [
+    { role: "system", content: buildSystemPrompt(shownProductIds, cart) },
+    ...history.map((m) => ({ role: m.role, content: m.content })),
+  ];
+
+  let text = "";
+  for (let round = 0; round < MAX_TOOL_ROUNDS; round++) {
+    const res = await complete(p, messages, TOOLS);
+    if (res.toolCalls.length === 0) {
+      text = res.content.trim();
+      break;
+    }
+    messages.push({ role: "assistant", content: res.content || null, tool_calls: res.toolCalls });
+    for (const call of res.toolCalls) {
+      let args: unknown = {};
+      try {
+        args = JSON.parse(call.function.arguments || "{}");
+      } catch {
+        args = null;
+      }
+      const result = args === null ? { erro: "Argumentos não são JSON válido." } : runTool(call.function.name, args, ctx);
+      messages.push({ role: "tool", tool_call_id: call.id, content: JSON.stringify(result) });
+    }
+  }
+
+  if (!text) {
+    text = ctx.ui.recommended.length
+      ? "Separei algumas opções na vitrine para você."
+      : "Posso ajudar com dermocosméticos e suplementos. O que você está procurando?";
+  }
+  return toResponse("ai", text, ctx.ui);
+}
 
 export async function POST(req: NextRequest) {
   const ip = req.headers.get("x-forwarded-for")?.split(",")[0]?.trim() || "local";
@@ -59,65 +97,15 @@ export async function POST(req: NextRequest) {
   }
 
   const { cart, shownProductIds } = parsed.data;
-  const apiKey = process.env.ANTHROPIC_API_KEY;
 
-  if (!apiKey) {
-    return NextResponse.json(runDemo({ messages: history, cart, shownProductIds }));
-  }
-
-  try {
-    const client = new Anthropic({ apiKey });
-    const model = process.env.ANTHROPIC_MODEL || "claude-haiku-5-5";
-    const system = buildSystemPrompt(shownProductIds, cart);
-    const ctx = { cart: new Map(cart.map((c) => [c.productId, c.quantity])), ui: newUi() };
-
-    const messages: Anthropic.MessageParam[] = history.map((m) => ({
-      role: m.role,
-      content: m.content,
-    }));
-
-    let text = "";
-    for (let round = 0; round < MAX_TOOL_ROUNDS; round++) {
-      const res = await client.messages.create({
-        model,
-        max_tokens: 1024,
-        system,
-        tools: TOOLS,
-        messages,
-      });
-
-      if (res.stop_reason === "tool_use") {
-        messages.push({ role: "assistant", content: res.content });
-        const results: Anthropic.ToolResultBlockParam[] = [];
-        for (const block of res.content) {
-          if (block.type === "tool_use") {
-            results.push({
-              type: "tool_result",
-              tool_use_id: block.id,
-              content: JSON.stringify(runTool(block.name, block.input, ctx)),
-            });
-          }
-        }
-        messages.push({ role: "user", content: results });
-        continue;
-      }
-
-      text = res.content
-        .flatMap((b) => (b.type === "text" ? [b.text] : []))
-        .join("\n")
-        .trim();
-      break;
+  // Groq -> Gemini -> modo demonstração. Sem chave nenhuma, vai direto para o demo.
+  for (const provider of configuredProviders()) {
+    try {
+      return NextResponse.json(await runWithProvider(provider, history, cart, shownProductIds));
+    } catch (err) {
+      // Log sem dados do cliente.
+      console.error(`[intua] falha em ${provider.name}:`, err instanceof Error ? err.message : "erro desconhecido");
     }
-
-    if (!text) {
-      text = ctx.ui.recommended.length
-        ? "Separei algumas opções na vitrine para você."
-        : "Posso ajudar com dermocosméticos e suplementos. O que você está procurando?";
-    }
-    return NextResponse.json(toResponse("ai", text, ctx.ui));
-  } catch (err) {
-    // Log sem dados do cliente. Se a API falhar, cai para o modo demonstração.
-    console.error("[intua] falha na API do modelo:", err instanceof Error ? err.message : "erro desconhecido");
-    return NextResponse.json(runDemo({ messages: history, cart, shownProductIds }));
   }
+  return NextResponse.json(runDemo({ messages: history, cart, shownProductIds }));
 }

@@ -1,5 +1,4 @@
 import { z } from "zod";
-import type Anthropic from "@anthropic-ai/sdk";
 import { CATALOG, brl, formatMetric, getProduct, searchProducts } from "./catalog";
 import type { CartAction, CatalogProduct, ChatResponse } from "./types";
 
@@ -67,47 +66,54 @@ function view(p: CatalogProduct) {
 const buscarSchema = z.object({
   consulta: z.string().max(120).optional(),
   categoria: z.enum(["dermocosmetico", "suplemento"]).optional(),
-  preco_max: z.number().positive().max(5000).optional(),
+  preco_max: z.coerce.number().positive().max(5000).optional(),
   tipo_pele: z.enum(["oleosa", "seca", "mista", "normal", "sensivel"]).optional(),
   preocupacao: z.string().max(60).optional(),
   dieta: z.enum(["vegano", "sem lactose", "baixo teor de lactose"]).optional(),
   ordenar_por: z
     .enum(["relevancia", "preco_asc", "preco_desc", "avaliacao", "custo_beneficio"])
     .optional(),
-  limite: z.number().int().min(1).max(8).optional(),
+  limite: z.coerce.number().int().min(1).max(8).optional(),
 });
 
 const recomendarSchema = z.object({
   recomendacoes: z
-    .array(z.object({ produto_id: z.number().int(), motivo: z.string().min(1).max(400) }))
+    .array(z.object({ produto_id: z.coerce.number().int(), motivo: z.string().min(1).max(400) }))
     .min(1)
     .max(6),
   acoes_sugeridas: z.array(z.string().max(60)).max(4).optional(),
-  orcamento_max: z.number().positive().max(5000).optional(),
+  orcamento_max: z.coerce.number().positive().max(5000).optional(),
 });
 
 const compararSchema = z.object({
-  produto_ids: z.array(z.number().int()).min(2).max(3),
+  produto_ids: z.array(z.coerce.number().int()).min(2).max(3),
 });
 
 const carrinhoSchema = z.object({
   acao: z.enum(["adicionar", "remover", "definir_quantidade", "limpar"]),
-  produto_id: z.number().int().optional(),
-  quantidade: z.number().int().min(0).max(20).optional(),
+  produto_id: z.coerce.number().int().optional(),
+  quantidade: z.coerce.number().int().min(0).max(20).optional(),
 });
 
 const farmaceuticoSchema = z.object({
   motivo: z.string().min(1).max(300),
 });
 
-/* ----------------------------- Definição p/ Claude ------------------------ */
+/* ------------------------- Definição para o modelo ------------------------ */
 
-export const TOOLS: Anthropic.Tool[] = [
+/** Definição neutra de ferramenta (JSON Schema), no formato "function" da OpenAI. */
+export interface ToolDef {
+  name: string;
+  description: string;
+  parameters: Record<string, unknown>;
+}
+
+export const TOOLS: ToolDef[] = [
   {
     name: "buscar_produtos",
     description:
       "Busca produtos no catálogo da loja (dermocosméticos e suplementos). Use SEMPRE antes de recomendar. Devolve preço, ativos, métricas de custo-benefício e avisos reais do catálogo.",
-    input_schema: {
+    parameters: {
       type: "object",
       properties: {
         consulta: { type: "string", description: "Palavras-chave livres, ex: 'whey', 'protetor', 'niacinamida'." },
@@ -128,7 +134,7 @@ export const TOOLS: Anthropic.Tool[] = [
     name: "recomendar_produtos",
     description:
       "Exibe na vitrine os produtos escolhidos e registra o motivo de cada um. Chame sempre que sugerir produtos ao cliente. Devolve o total real e se cabe no orçamento.",
-    input_schema: {
+    parameters: {
       type: "object",
       properties: {
         recomendacoes: {
@@ -162,7 +168,7 @@ export const TOOLS: Anthropic.Tool[] = [
   {
     name: "comparar_produtos",
     description: "Abre uma tabela comparativa lado a lado (2 ou 3 produtos) na vitrine.",
-    input_schema: {
+    parameters: {
       type: "object",
       properties: { produto_ids: { type: "array", minItems: 2, maxItems: 3, items: { type: "integer" } } },
       required: ["produto_ids"],
@@ -172,7 +178,7 @@ export const TOOLS: Anthropic.Tool[] = [
     name: "atualizar_carrinho",
     description:
       "Altera o carrinho. Use SOMENTE quando o cliente pedir explicitamente (adicionar, trocar, remover, ajustar quantidade). Para trocar um item, remova um e adicione outro.",
-    input_schema: {
+    parameters: {
       type: "object",
       properties: {
         acao: { type: "string", enum: ["adicionar", "remover", "definir_quantidade", "limpar"] },
@@ -186,7 +192,7 @@ export const TOOLS: Anthropic.Tool[] = [
     name: "encaminhar_farmaceutico",
     description:
       "Sinaliza que o cliente deve falar com um farmacêutico (gestante/lactante, bebê, uso de medicamentos, condição de saúde, sintomas, lesões de pele). Mostra um aviso e o botão de atendimento.",
-    input_schema: {
+    parameters: {
       type: "object",
       properties: { motivo: { type: "string", description: "Motivo em 1 frase, sem dados pessoais." } },
       required: ["motivo"],
@@ -196,7 +202,14 @@ export const TOOLS: Anthropic.Tool[] = [
 
 /* -------------------------------- Execução -------------------------------- */
 
-export function runTool(name: string, input: unknown, ctx: ToolContext): unknown {
+/** Modelos abertos costumam mandar `null` em campos opcionais; tratamos como ausente. */
+function dropNulls(input: unknown): unknown {
+  if (!input || typeof input !== "object" || Array.isArray(input)) return input;
+  return Object.fromEntries(Object.entries(input).filter(([, v]) => v !== null));
+}
+
+export function runTool(name: string, rawInput: unknown, ctx: ToolContext): unknown {
+  const input = dropNulls(rawInput);
   switch (name) {
     case "buscar_produtos": {
       const a = buscarSchema.safeParse(input);
