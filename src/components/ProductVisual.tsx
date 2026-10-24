@@ -38,14 +38,14 @@ export function ProductVisual({
 
   if (showImage && product.image) {
     return (
-      <div className={`relative overflow-hidden rounded-lg bg-slate-50 ${className}`}>
+      <div className={`relative overflow-hidden rounded-lg bg-[#fafafa] ${className}`}>
         <Image
           src={product.image}
           alt={product.name}
           fill
           unoptimized={product.image.endsWith(".svg")}
           sizes={small ? "64px" : "(max-width: 768px) 50vw, 25vw"}
-          className="object-cover transition-transform duration-300 hover:scale-105"
+          className={`object-contain transition-transform duration-300 hover:scale-105 ${small ? "p-1" : "p-2"}`}
           onError={() => setImageError(true)}
           priority={product.id <= 4}
         />
