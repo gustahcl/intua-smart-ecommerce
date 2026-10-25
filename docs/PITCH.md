@@ -79,5 +79,6 @@ O MVP não tem login, não guarda conversas nem fotos e os logs não registram o
 - [ ] Foto de embalagem testada ao vivo com o mesmo frasco da apresentação.
 - [ ] **Vídeo de backup** gravado com os 5 passos do roteiro, para o caso de a internet ou a cota da IA falharem.
 - [ ] Limite da rota: 15 mensagens por minuto por IP. Não ensaiem em rajada logo antes de entrar.
+- [ ] **Cota gratuita das IAs.** Cada mensagem do chat usa de 1 a 4 chamadas ao modelo. O `gemini-3.5-flash` gratuito só permite 20 chamadas por dia, por isso o padrão é o `gemini-3.5-flash-lite`, que tem cota própria. O Groq gratuito limita 8 mil tokens por minuto. No dia da apresentação, não gastem a cota ensaiando de manhã; se possível, ativem o faturamento no Google AI Studio (o nível pago tem limites muito maiores). Para ensaiar sem estourar o limite: `npm run smoke -- --expect-ai --delay=15`.
 - [ ] Navegador em tela cheia, zoom em 100%, carrinho vazio, aba recém-aberta.
 - [ ] Quem fala e quem clica definidos; cada um sabe a resposta das perguntas difíceis acima.

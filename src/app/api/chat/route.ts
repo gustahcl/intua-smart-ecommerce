@@ -95,6 +95,20 @@ async function handlePhoto(image: string): Promise<{ reply: ChatResponse } | { n
 
 const MAX_TOOL_ROUNDS = 6;
 
+/**
+ * O chat mostra texto cru. Mesmo com a regra no prompt, alguns modelos devolvem
+ * markdown; aqui tiramos negrito, títulos e marcadores de lista para não aparecer "**".
+ */
+function plainText(s: string): string {
+  return s
+    .replace(/\*\*(.+?)\*\*/g, "$1")
+    .replace(/__(.+?)__/g, "$1")
+    .replace(/^#{1,6}\s+/gm, "")
+    .replace(/^\s*[-*•]\s+/gm, "• ")
+    .replace(/\n{3,}/g, "\n\n")
+    .trim();
+}
+
 type Cart = { productId: number; quantity: number }[];
 
 /** Roda o loop de ferramentas em um provedor. Lança erro se a API falhar. */
@@ -109,7 +123,7 @@ async function runWithProvider(p: Provider, history: ChatMessage[], cart: Cart, 
   for (let round = 0; round < MAX_TOOL_ROUNDS; round++) {
     const res = await complete(p, messages, TOOLS);
     if (res.toolCalls.length === 0) {
-      text = res.content.trim();
+      text = plainText(res.content);
       break;
     }
     messages.push({ role: "assistant", content: res.content || null, tool_calls: res.toolCalls });
@@ -172,7 +186,7 @@ export async function POST(req: NextRequest) {
     history[history.length - 1] = { ...last, content: `${last.content}\n${photo.note}` };
   }
 
-  // Groq -> Gemini -> modo demonstração. Sem chave nenhuma, vai direto para o demo.
+  // Gemini -> Groq -> modo demonstração. Sem chave nenhuma, vai direto para o demo.
   for (const provider of configuredProviders()) {
     try {
       return NextResponse.json(await runWithProvider(provider, history, cart, shownProductIds));
