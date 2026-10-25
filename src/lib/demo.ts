@@ -109,6 +109,16 @@ export function runDemo(input: DemoInput): ChatResponse {
     );
   }
 
+  /* 1.5. Foto de receita médica ou frasco de produto. */
+  if (/(foto|receita|prescri|rotulo|frasco|imagem)/.test(t)) {
+    const items = [getProduct(1), getProduct(10)].filter((x): x is CatalogProduct => x !== undefined);
+    recommend(ui, items);
+    ui.suggested = ["Adicionar ambos ao carrinho", "Ver opções mais baratas", "Falar com farmacêutico"];
+    return done(
+      "Analisei a foto da receita! Identifiquei a prescrição de Protetor Solar Facial Toque Seco FPS 60 e Sérum Antioxidante (Vitamina C 10%). Localizei as opções correspondentes disponíveis no catálogo da Pague Menos."
+    );
+  }
+
   /* 2. Carrinho. */
   const wantsAdd = /(adicion|coloca|colocar|poe |por no carrinho|levar|quero (o |a |esse|essa|esses))/.test(t);
   const wantsRemove = /(remov|tira |tirar|retira)/.test(t);

@@ -42,11 +42,16 @@ export default function Home() {
   const nextId = useRef(1);
 
   const send = useCallback(
-    async (text: string) => {
+    async (text: string, image?: string) => {
       const clean = text.trim().slice(0, 500);
-      if (!clean || loading) return;
+      if ((!clean && !image) || loading) return;
 
-      const userMsg: UiMessage = { id: nextId.current++, role: "user", content: clean };
+      const userMsg: UiMessage = {
+        id: nextId.current++,
+        role: "user",
+        content: clean || (image ? "Enviei uma foto para análise." : ""),
+        image,
+      };
       setMessages((m) => [...m, userMsg]);
       setLoading(true);
       setHandoff(null);

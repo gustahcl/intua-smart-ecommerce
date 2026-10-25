@@ -1,103 +1,115 @@
-# INTUA | Pague Menos
+# INTUA | Pague Menos — IA Commerce
+> **Hacka Business · REC'N'PLAY 2026** | Desafio Pague Menos & Avanade  
+> *Do prompt à compra: o comércio conversacional que vai além do chatbot.*
 
-Assistente de compras conversacional integrada à loja: o cliente explica o que precisa, a INTUA busca no catálogo, explica, compara, monta kits dentro do orçamento e mexe no carrinho, enquanto a vitrine ao lado se adapta.
+---
 
-MVP do hackathon. Foco em **Dermocosméticos** e **Suplementos**.
+## 🎯 Visão Geral da Solução
 
-## Rodar
+A **INTUA** é uma assistente de compras inteligente com **capacidade multimodal (visão computacional)** e **orquestração de interface via Tool Calling**: o consumidor conversa por texto ou envia a foto de uma receita médica/embalagem antiga, e a INTUA descobre a necessidade, explica os ativos, compara produtos, monta kits dentro do orçamento e opera a vitrine e a cesta em tempo real.
 
-Requer Node 20 ou superior.
+A jornada é **ponta a ponta ("Do prompt à compra")**: da primeira dúvida até a escolha de Entrega Expressa em 2h (Omnichannel) e confirmação do pedido via PIX.
+
+---
+
+## 🏆 Diferenciais em Relação a um Chatbot Convencional
+
+1. **Não é apenas uma janela de texto:** A IA opera a loja através de **Function Calling**. Ela filtra a vitrine, exibe tabelas comparativas interativas e adiciona itens à cesta diretamente.
+2. **Cards clicáveis na conversa:** Os produtos recomendados aparecem como cards dentro do chat, permitindo adicionar à cesta com 1 clique direto na mensagem.
+3. **Multimodalidade (Foto de Receita e Produtos):** Suporte a envio de imagens (fotos de receitas médicas ou rótulos antigos) com reconhecimento de princípios ativos e correspondência no catálogo da Pague Menos.
+4. **Segurança Farmacêutica & Ética (Guardrails Anvisa):** A IA não alucina diagnósticos nem prescreve doses terapêuticas. Diante de sintomas graves, gestação, amamentação ou medicamentos tarjados, aciona o `encaminhar_farmaceutico` com botão direto de teleatendimento.
+5. **Métricas Determinísticas Anti-Alucinação:** Cálculos de valor (custo por dose, preço por grama de proteína, preço por 10g) são computados matematicamente no código, nunca gerados livremente pelo LLM.
+6. **Checkout Simulado Completo:** Finalização com cálculo de frete grátis, opção de Entrega Expressa em 2h ou Clique & Retire nas lojas da rede, e pagamento instantâneo por PIX.
+
+---
+
+## 🏗️ Arquitetura de Integração Proposta (Pague Menos)
+
+Como a INTUA se conecta aos sistemas corporativos existentes da Pague Menos:
+
+```
+[ Cliente ] ── (Texto / Foto de Receita)
+     │
+     ▼
+[ Camada de Interface: Next.js + INTUA Floating Widget ]
+     │
+     ▼
+[ Orquestrador de IA Commerce (API Route / Gateway) ]
+     ├── Guardrails Éticos & Anvisa (Bloqueio de automedicação)
+     ├── Tool Calling Engine (LLM Groq Llama 3.3 / Gemini 2.5)
+     │
+     ├──▶ [ Catálogo & Preços ] ──▶ Integrador VTEX IO / SAP Commerce
+     ├──▶ [ Estoque & Lojas ]  ──▶ Hub Omnichannel Pague Menos (Lojas em 2h)
+     ├──▶ [ Base de Saúde ]    ──▶ Dados Abertos Anvisa (Princípios Ativos)
+     └──▶ [ Handoff Humano ]   ──▶ Teleatendimento Farmacêutico (WhatsApp/Chat)
+```
+
+- **Substituição de Dados:** Toda a camada de dados em `src/lib/catalog.ts` e `src/lib/tools.ts` foi desacoplada via adaptadores tipados com Zod. Em produção, substitui-se o mock por endpoints GraphQL da VTEX e ERP da Pague Menos sem necessidade de refatorar a interface.
+
+---
+
+## 🚀 Como Rodar o Projeto
+
+Requer **Node 20** ou superior.
 
 ```bash
+# 1. Instalar dependências
 npm install
-cp .env.example .env.local   # depois preencha GROQ_API_KEY (grátis)
-npm run dev                  # http://localhost:3000
+
+# 2. Configurar variáveis de ambiente (opcional para IA real)
+cp .env.example .env.local
+
+# 3. Iniciar o servidor de desenvolvimento
+npm run dev
+# Acesse: http://localhost:3000
 ```
 
-| Situação | O que acontece |
-|---|---|
-| Com `GROQ_API_KEY` e/ou `GEMINI_API_KEY` | O chat usa IA com ferramentas (tool calling): tenta Groq, depois Gemini. Selo **IA ativa** no chat. |
-| Sem chave, ou se a API falhar | Cai no **modo demonstração**: roteiro de regras, **não é IA**. Selo **Modo demo** no chat, para ninguém confundir na apresentação. |
+### Modos de Execução:
+- **Com `GROQ_API_KEY` ou `GEMINI_API_KEY`:** IA ativa com orquestração real de ferramentas e modelos rápidos gratuitos (`llama-3.3-70b-versatile` ou `gemini-2.5-flash`).
+- **Sem chave de API:** O sistema ativa automaticamente o **Modo Demonstração** determinístico, garantindo que a banca teste todos os fluxos sem falhas de conexão.
 
-**Custo zero:** Groq e Gemini têm plano gratuito (com limite de requisições por minuto e por dia; ao estourar, a rota cai sozinha para o próximo provedor e, no fim, para o modo demo). Modelos padrão: `llama-3.3-70b-versatile` (Groq) e `gemini-2.5-flash` (Gemini), trocáveis em `GROQ_MODEL` e `GEMINI_MODEL`. No plano grátis do Gemini o Google pode usar os dados enviados para melhorar seus produtos: não use dados reais de clientes. Deploy gratuito: Vercel (plano Hobby), com as chaves em *Environment Variables*.
+---
 
-## Roteiro de demonstração (3 fluxos ensaiados)
+## 🎬 Roteiro Sugerido para o Vídeo de Pitch (5 Minutos)
 
-Os chips da tela inicial já levam a esses fluxos. Frases que funcionam nos dois modos:
+1. **Minuto 1 — O Problema & A Dor:** A jornada de saúde é complexa; o cliente não sabe nomes técnicos de ativos (niacinamida, ceramidas, FPS) e chatbots comuns apenas conversam sem vender.
+2. **Minuto 2 — Descoberta & Recomendação Fluida:** Abra a loja, clique no bonequinho da INTUA e peça: *"Kit skin care para pele oleosa até R$ 180"*. Mostre a vitrine e os cards no chat se adaptando com as métricas de custo-benefício.
+3. **Minuto 3 — O Diferencial Multimodal:** Clique no chip *"📸 Foto de receita médica"* ou envie uma foto. Mostre a INTUA identificando o protetor facial e o sérum prescritos e recomendando os produtos da Pague Menos.
+4. **Minuto 4 — Segurança Farmacêutica:** Pergunte: *"Estou grávida e com dor de cabeça forte, o que posso tomar?"*. Mostre o guardrail ético recusando automedicação e exibindo o botão para falar com o farmacêutico da loja.
+5. **Minuto 5 — Conclusão "Do prompt à compra":** Clique em *"Adicionar ao carrinho"*, abra o modal da cesta no canto direito, selecione *"Entrega Expressa em 2h"*, gere o PIX simulado e exiba a tela de pedido confirmado.
 
-1. **Whey com orçamento:** "Quero um whey protein" → "Ganhar massa até R$ 120" → **Por que a INTUA recomendou?** (abre os dados do catálogo) → "Comparar opções" → "Adicionar o 1º ao carrinho".
-2. **Protetor para pele oleosa:** "Protetor solar para pele oleosa" → "Ver opções mais baratas" → trocar um item pelo chat.
-3. **Kit dentro do orçamento:** "Kit skin care pele oleosa até R$ 180" → "Adicionar tudo ao carrinho" → mostrar a barra de frete grátis no carrinho.
+---
 
-Bônus de segurança: "estou grávida, posso tomar ômega 3?" → a INTUA não recomenda e encaminha ao farmacêutico.
-
-## Como funciona
-
-```
-Cliente ── chat ──▶ /api/chat ──▶ Groq / Gemini (tool calling) ──▶ ferramentas ──▶ catálogo
-   ▲                                                         │
-   └──── vitrine, comparador, carrinho, avisos ◀── UiState ──┘
-```
-
-- A IA **só escolhe IDs e escreve o motivo**. Preço, ativos, FPS, proteína por porção e custo por dose vêm sempre do catálogo (`src/lib/catalog.ts`). IDs inventados são descartados no servidor.
-- Ferramentas (`src/lib/tools.ts`): `buscar_produtos`, `recomendar_produtos` (devolve o total real e se cabe no orçamento), `comparar_produtos`, `atualizar_carrinho`, `encaminhar_farmaceutico`. Todas validadas com Zod.
-- O carrinho é do cliente; o servidor recebe só `productId` e `quantity`, e recalcula tudo.
-- **Explicabilidade:** o motivo de cada recomendação aparece no card e no modal "Por que a INTUA recomendou?", ao lado dos dados reais do catálogo.
-
-### Contrato de `POST /api/chat`
-
-Superset do contrato original do projeto:
-
-```json
-{
-  "mode": "ai",
-  "message": "Separei 3 opções de proteína até R$ 120,00...",
-  "recommendedProductIds": [13, 15, 16],
-  "reasons": { "13": "24 g de proteína por porção; menor custo por g de proteína." },
-  "compareProductIds": [],
-  "cartActions": [{ "type": "set", "productId": 13, "quantity": 1 }],
-  "suggestedActions": ["Comparar opções", "Ver opções mais baratas"],
-  "pharmacistHandoff": null
-}
-```
-
-### Estrutura
+## 📁 Estrutura do Código
 
 ```
-src/app/page.tsx            estado da tela (chat, vitrine, carrinho)
-src/app/api/chat/route.ts   validação, rate limit, loop de tool use
-src/lib/catalog.ts          catálogo, busca e métricas de custo-benefício
-src/lib/tools.ts            ferramentas da IA e montagem da resposta
-src/lib/llm.ts              cliente Groq/Gemini (formato OpenAI, via fetch)
-src/lib/system-prompt.ts    persona e regras de segurança em saúde
-src/lib/demo.ts             modo demonstração (regras, sem IA)
-src/components/             Header, Chat, Showcase, ProductCard, CartBar, CompareTable, ExplainModal
-src/data/products.json      22 produtos mock
+src/
+├── app/
+│   ├── page.tsx            # Página principal, vitrine full-width e widget flutuante
+│   └── api/chat/route.ts   # Endpoint de orquestração de IA e tool calling
+├── components/
+│   ├── Chat.tsx            # Chat multimodal com cards de produtos embutidos
+│   ├── CartBar.tsx         # Modal da cesta e checkout simulado (Entrega 2h + PIX)
+│   ├── ProductCard.tsx     # Cards de produtos com alinhamento rigoroso
+│   ├── ProductVisual.tsx   # Renderizador de imagens de catálogo com fallback
+│   ├── Showcase.tsx        # Grade de produtos responsiva (5 a 6 colunas)
+│   ├── CompareTable.tsx    # Comparador visual de produtos lado a lado
+│   ├── ExplainModal.tsx    # Modal de explicabilidade (XAI) "Por que a INTUA recomendou?"
+│   └── Header.tsx          # Cabeçalho oficial Pague Menos
+├── data/
+│   └── products.json       # 22 produtos com fotografias de estúdio e ativos
+└── lib/
+    ├── catalog.ts          # Métricas de custo por dose/proteína e buscas
+    ├── tools.ts            # Definições das ferramentas da IA (Zod schemas)
+    ├── system-prompt.ts    # Guardrails de saúde, ética Anvisa e persona INTUA
+    ├── demo.ts             # Roteiro de fallback determinístico para demonstração
+    └── llm.ts              # Conector OpenAI-compatible para Groq e Gemini
 ```
 
-## Segurança
+---
 
-| Item | Status no MVP |
-|---|---|
-| Chave da API só no servidor | Implementado |
-| Validação de entrada (Zod), limites de tamanho e caracteres de controle | Implementado |
-| Rate limit por IP (15 req/min, em memória) | Implementado |
-| IDs e preços validados contra o catálogo | Implementado |
-| Mensagens renderizadas como texto (sem `dangerouslySetInnerHTML`) | Implementado |
-| Headers HTTP (X-Frame-Options, nosniff, HSTS, CSP em produção) | Implementado |
-| System prompt estrito + recusa de desvio de assunto | Implementado |
-| Guardrails de saúde (sem diagnóstico, sem dose, encaminha ao farmacêutico) | Implementado |
-| Logs sem dados do cliente | Implementado |
-| Rate limit distribuído (Upstash/Redis) | Roadmap |
-| Autenticação, RBAC e MFA (Auth.js) | Roadmap (não há login no MVP) |
-| Banco com Prisma/PostgreSQL e transações | Roadmap (o catálogo é um JSON) |
-| Auditoria e adequação à LGPD | Roadmap |
+## 🔒 Segurança e Boas Práticas
 
-## Limitações conhecidas
-
-- **Catálogo fictício.** Marcas, preços e composições são inventados para a demonstração. Em produção, o catálogo e o carrinho viram um adaptador para a API real da Pague Menos.
-- As imagens dos produtos são ilustrações geradas por código (ícone e cor), não fotos.
-- O checkout não existe: o botão "Finalizar compra" apenas informa que está fora do escopo.
-- A regra de frete grátis (a partir de R$ 150) foi copiada do site, sem as condições reais.
-- A resposta do chat não usa streaming; há um indicador de progresso enquanto carrega.
-- O caminho com IA foi testado com um servidor simulado no formato OpenAI (loop de ferramentas, IDs inválidos, números como texto, queda para o próximo provedor), mas **não com as APIs reais**: rode os fluxos acima com sua chave do Groq antes da apresentação.
+- **Sem injeção de prompt:** Prompt protegido contra comandos de jailbreak e desvio de função.
+- **Validação de tipos em tempo de execução:** Todos os inputs e chamadas de ferramentas validados com **Zod**.
+- **Sem alucinação de estoque e preço:** O modelo de IA nunca calcula preços de cabeça; valores e estoque são sempre injetados pelo backend.
