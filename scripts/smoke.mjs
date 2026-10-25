@@ -4,6 +4,7 @@
  *
  *   npm run smoke                      # testa http://localhost:3000
  *   npm run smoke -- --url=https://seu-app.vercel.app --expect-ai
+ *   npm run smoke -- --expect-ai --delay=20   # espaça os fluxos (planos gratuitos)
  *
  * Com --expect-ai, falha se alguma resposta vier do modo demonstração
  * (sinal de chave ausente, inválida ou sem cota). Faz 6 chamadas: fica
@@ -17,6 +18,9 @@ const args = Object.fromEntries(
 );
 const base = String(args.url ?? "http://localhost:3000").replace(/\/$/, "");
 const expectAi = Boolean(args["expect-ai"]);
+// Segundos entre um fluxo e outro. Os planos gratuitos limitam pedidos por minuto
+// (HTTP 429), então em rajada os últimos fluxos caem no modo demonstração.
+const delaySec = Number(args.delay ?? 0);
 
 const FLOWS = [
   { name: "Whey com orçamento", text: "Whey para ganhar massa até R$ 120", expect: (r) => r.recommendedProductIds.length > 0 },
@@ -30,7 +34,8 @@ const FLOWS = [
 let failures = 0;
 console.log(`Ensaio em ${base}${expectAi ? " (exigindo IA ativa)" : ""}\n`);
 
-for (const f of FLOWS) {
+for (const [i, f] of FLOWS.entries()) {
+  if (i > 0 && delaySec > 0) await new Promise((r) => setTimeout(r, delaySec * 1000));
   const started = Date.now();
   try {
     const res = await fetch(`${base}/api/chat`, {
