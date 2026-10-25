@@ -164,7 +164,7 @@
     "reviews": 1502,
     "description": "Gel de limpeza diária que remove o excesso de oleosidade sem agredir.",
     "caution": "Pode causar ressecamento em peles sensibilizadas. Suspenda o uso se houver irritação.",
-    "image": "/products/produto-5.svg"
+    "image": "/products/produto-5.jpg"
   },
   {
     "id": 6,
@@ -196,7 +196,7 @@
     "rating": 4.7,
     "reviews": 688,
     "description": "Limpeza suave que respeita a barreira da pele, sem perfume.",
-    "image": "/products/produto-6.svg"
+    "image": "/products/produto-6.jpg"
   },
   {
     "id": 7,
@@ -228,7 +228,7 @@
     "rating": 4.5,
     "reviews": 903,
     "description": "Gel leve que hidrata sem pesar, indicado para pele oleosa e mista.",
-    "image": "/products/produto-7.svg"
+    "image": "/products/produto-7.jpg"
   },
   {
     "id": 8,
@@ -359,7 +359,7 @@
     "reviews": 1320,
     "description": "Gel de aplicação pontual para espinhas ocasionais.",
     "caution": "Pode ressecar e irritar. Acne persistente, inflamada ou com dor deve ser avaliada por um dermatologista.",
-    "image": "/products/produto-11.svg"
+    "image": "/products/produto-11.jpg"
   },
   {
     "id": 12,
@@ -388,7 +388,7 @@
     "rating": 4.6,
     "reviews": 2011,
     "description": "Limpa e remove maquiagem sem necessidade de enxágue.",
-    "image": "/products/produto-12.svg"
+    "image": "/products/produto-12.jpg"
   },
   {
     "id": 13,
@@ -522,7 +522,7 @@
     "rating": 4.4,
     "reviews": 512,
     "description": "Blend vegano de ervilha e arroz com 21 g de proteína por porção.",
-    "image": "/products/produto-16.svg"
+    "image": "/products/produto-16.jpg"
   },
   {
     "id": 17,
@@ -555,7 +555,7 @@
     "reviews": 2763,
     "description": "Creatina monohidratada em pó, porção de 3 g conforme o rótulo.",
     "caution": "Quem tem condição de saúde ou usa medicamentos deve conversar com um profissional antes de usar suplementos.",
-    "image": "/products/produto-17.svg"
+    "image": "/products/produto-17.jpg"
   },
   {
     "id": 18,
@@ -676,7 +676,7 @@
     "rating": 4.4,
     "reviews": 874,
     "description": "Fluido leve de toque seco para o uso diário, com boa relação custo-benefício.",
-    "image": "/products/produto-21.svg"
+    "image": "/products/produto-21.jpg"
   },
   {
     "id": 22,
@@ -712,6 +712,6 @@
     "rating": 4.7,
     "reviews": 1033,
     "description": "Gel oil-free com FPS alto, indicado para pele oleosa e mista.",
-    "image": "/products/produto-22.svg"
+    "image": "/products/produto-22.jpg"
   }
 ]
