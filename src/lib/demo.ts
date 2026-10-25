@@ -109,13 +109,12 @@ export function runDemo(input: DemoInput): ChatResponse {
     );
   }
 
-  /* 1.5. Foto de receita médica ou frasco de produto. */
-  if (/(foto|receita|prescri|rotulo|frasco|imagem)/.test(t)) {
-    const items = [getProduct(1), getProduct(10)].filter((x): x is CatalogProduct => x !== undefined);
-    recommend(ui, items);
-    ui.suggested = ["Adicionar ambos ao carrinho", "Ver opções mais baratas", "Falar com farmacêutico"];
+  /* 1.5. Receita médica descrita em texto: quem confere prescrição é o farmacêutico. */
+  if (/(receita|prescri)/.test(t)) {
+    ui.handoff = "Pedido envolvendo receita médica.";
+    ui.suggested = ["Ver protetores solares", "Ver suplementos"];
     return done(
-      "Analisei a foto da receita! Identifiquei a prescrição de Protetor Solar Facial Toque Seco FPS 60 e Sérum Antioxidante (Vitamina C 10%). Localizei as opções correspondentes disponíveis no catálogo da Pague Menos."
+      "Por segurança, eu não leio nem interpreto receitas médicas: quem confere a prescrição é um farmacêutico da Pague Menos. Posso ajudar com dermocosméticos e suplementos.",
     );
   }
 

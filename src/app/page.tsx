@@ -49,7 +49,7 @@ export default function Home() {
       const userMsg: UiMessage = {
         id: nextId.current++,
         role: "user",
-        content: clean || (image ? "Enviei uma foto para análise." : ""),
+        content: clean || (image ? "Encontre este produto ou um parecido." : ""),
         image,
       };
       setMessages((m) => [...m, userMsg]);
@@ -69,6 +69,8 @@ export default function Home() {
             messages: history,
             cart: Object.entries(cart).map(([id, quantity]) => ({ productId: Number(id), quantity })),
             shownProductIds: recommended.map((r) => r.id),
+            // Só a foto da mensagem atual vai para o servidor; o histórico segue só com texto.
+            ...(image ? { image } : {}),
           }),
         });
         if (!res.ok) {
