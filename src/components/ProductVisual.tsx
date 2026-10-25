@@ -9,7 +9,8 @@ function pick(p: CatalogProduct): { Icon: LucideIcon; from: string; to: string }
   const sub = p.subcategory.toLowerCase();
   if (sub.includes("protetor")) return { Icon: Sun, from: "#FFF3D6", to: "#FFD98A" };
   if (sub.includes("sérum")) return { Icon: FlaskConical, from: "#E6F7FF", to: "#9EDBFF" };
-  if (sub.includes("hidratante") || sub.includes("limpeza")) return { Icon: Droplets, from: "#E8F1FF", to: "#B5D0FF" };
+  if (sub.includes("hidratante") || sub.includes("limpeza") || sub.includes("micelar"))
+    return { Icon: Droplets, from: "#E8F1FF", to: "#B5D0FF" };
   if (sub.includes("pontual")) return { Icon: Sparkles, from: "#FDE8EE", to: "#F6B9CB" };
   if (sub.includes("whey") || sub.includes("vegetal") || sub.includes("creatina"))
     return { Icon: Dumbbell, from: "#EAF0FF", to: "#B8C7F5" };
@@ -37,13 +38,16 @@ export function ProductVisual({
   const showImage = Boolean(product.image && !imageError);
 
   if (showImage && product.image) {
+    // Cache buster para forçar os navegadores a atualizarem imagens recém-adicionadas
+    const imageSrc = `${product.image}?v=2`;
+
     return (
       <div className={`relative overflow-hidden rounded-lg bg-[#fafafa] ${className}`}>
         <Image
-          src={product.image}
+          src={imageSrc}
           alt={product.name}
           fill
-          unoptimized={product.image.endsWith(".svg")}
+          unoptimized
           sizes={small ? "64px" : "(max-width: 768px) 50vw, 25vw"}
           className={`object-contain transition-transform duration-300 hover:scale-105 ${small ? "p-1" : "p-2"}`}
           onError={() => setImageError(true)}
