@@ -381,6 +381,7 @@ export function Chat({
                       src={m.image}
                       alt="Anexo do usuário"
                       fill
+                      sizes="180px"
                       className="object-cover"
                     />
                   </div>
