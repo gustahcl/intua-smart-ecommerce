@@ -44,18 +44,48 @@ interface Props {
 
 const STATUS = [
   "Entendendo o que você precisa…",
-  "Processando foto e consultando ativos…",
+  "Consultando ativos e preços…",
   "Consultando o catálogo da Pague Menos…",
   "Preparando recomendações…",
 ];
 
+const PHOTO_CHIP = "📸 Foto da embalagem";
+
 export const INITIAL_CHIPS = [
-  "📸 Foto de receita médica",
+  PHOTO_CHIP,
   "Quero um whey protein",
   "Protetor solar para pele oleosa",
   "Kit skin care pele oleosa até R$ 180",
   "Suplemento sem lactose",
 ];
+
+/**
+ * Reduz a foto no navegador (lado maior até 1024 px, JPEG) antes de enviar:
+ * deixa o envio rápido e cabe no limite de tamanho da API.
+ */
+function shrinkImage(file: File, maxSide = 1024): Promise<string> {
+  return new Promise((resolve, reject) => {
+    // Lê como data: URL, e não blob:, porque a CSP de produção só libera img-src 'self' data:.
+    const reader = new FileReader();
+    reader.onerror = () => reject(new Error("falha ao ler o arquivo"));
+    reader.onload = () => {
+      const img = new window.Image();
+      img.onload = () => {
+        const scale = Math.min(1, maxSide / Math.max(img.width, img.height));
+        const canvas = document.createElement("canvas");
+        canvas.width = Math.round(img.width * scale);
+        canvas.height = Math.round(img.height * scale);
+        const ctx = canvas.getContext("2d");
+        if (!ctx) return reject(new Error("canvas indisponível"));
+        ctx.drawImage(img, 0, 0, canvas.width, canvas.height);
+        resolve(canvas.toDataURL("image/jpeg", 0.8));
+      };
+      img.onerror = () => reject(new Error("imagem inválida"));
+      img.src = reader.result as string;
+    };
+    reader.readAsDataURL(file);
+  });
+}
 
 function Avatar({ size = 32 }: { size?: number }) {
   return (
@@ -252,32 +282,29 @@ export function Chat({
 
   const chips = suggested.length > 0 ? suggested : messages.length <= 1 ? INITIAL_CHIPS : [];
 
-  const handleFileChange = (e: React.ChangeEvent<HTMLInputElement>) => {
+  const [photoError, setPhotoError] = useState<string | null>(null);
+
+  const handleFileChange = async (e: React.ChangeEvent<HTMLInputElement>) => {
     const file = e.target.files?.[0];
-    if (!file) return;
-    const reader = new FileReader();
-    reader.onload = () => {
-      setAttachedImage(reader.result as string);
-    };
-    reader.readAsDataURL(file);
     e.target.value = "";
+    if (!file) return;
+    setPhotoError(null);
+    try {
+      setAttachedImage(await shrinkImage(file));
+    } catch {
+      setPhotoError("Não consegui abrir essa imagem. Tente uma foto em JPG ou PNG.");
+    }
   };
 
   const handleChipClick = (c: string) => {
-    if (c.includes("Foto de receita")) {
-      onSend(
-        "Tenho esta foto de receita médica prescrevendo protetor solar facial toque seco FPS 60 e sérum de vitamina C. Você tem no catálogo?",
-        "/brand/mascote-480.jpg",
-      );
-    } else {
-      onSend(c);
-    }
+    if (c === PHOTO_CHIP) fileInputRef.current?.click();
+    else onSend(c);
   };
 
   const submit = (e: React.FormEvent) => {
     e.preventDefault();
     if ((!draft.trim() && !attachedImage) || loading) return;
-    onSend(draft || "Analise esta imagem enviada:", attachedImage ?? undefined);
+    onSend(draft || "Encontre este produto ou um parecido.", attachedImage ?? undefined);
     setDraft("");
     setAttachedImage(null);
   };
@@ -330,7 +357,7 @@ export function Chat({
               className="h-24 w-24 shrink-0 rounded-xl"
             />
             <p className="text-sm leading-snug text-white/80">
-              Eu encontro, comparo e ajudo você a escolher. Conte o que precisa ou envie a foto de uma receita ou produto.
+              Eu encontro, comparo e ajudo você a escolher. Conte o que precisa ou envie a foto da embalagem de um produto.
             </p>
           </div>
         )}
@@ -435,6 +462,8 @@ export function Chat({
           </div>
         )}
 
+        {photoError && <p className="mb-2 text-xs text-amber-300">{photoError}</p>}
+
         <form onSubmit={submit} className="flex items-center gap-2">
           {/* Input oculto de upload de imagem */}
           <input
@@ -449,7 +478,8 @@ export function Chat({
           <button
             type="button"
             onClick={() => fileInputRef.current?.click()}
-            title="Enviar foto de receita médica ou embalagem"
+            title="Enviar foto da embalagem de um produto"
+            aria-label="Enviar foto da embalagem de um produto"
             className="flex h-10 w-10 shrink-0 items-center justify-center rounded-full bg-white/10 text-white transition-colors hover:bg-white/20 active:scale-95"
           >
             <Camera className="h-4.5 w-4.5 text-ai" />
