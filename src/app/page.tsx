@@ -38,8 +38,18 @@ export default function Home() {
 
   // No PC e mobile, o chat agora começa fechado e só abre quando solicitado
   const [chatOpen, setChatOpen] = useState(false);
+  // Pedido que gerou as recomendações atuais, mostrado no topo da vitrine.
+  const [intent, setIntent] = useState("");
 
   const nextId = useRef(1);
+  const shopRef = useRef<HTMLElement>(null);
+
+  // No desktop (lg), o chat fica encaixado ao lado da vitrine: "ver na vitrine" só rola até o topo.
+  const isDesktop = () => typeof window !== "undefined" && window.matchMedia("(min-width: 1024px)").matches;
+  const showShop = () => {
+    shopRef.current?.scrollTo({ top: 0, behavior: "smooth" });
+    if (!isDesktop()) setChatOpen(false);
+  };
 
   const send = useCallback(
     async (text: string, image?: string) => {
@@ -80,8 +90,10 @@ export default function Home() {
         setMode(data.mode);
         if (data.recommendedProductIds.length > 0) {
           setRecommended(data.recommendedProductIds.map((id) => ({ id, reason: data.reasons[id] ?? "" })));
+          setIntent(userMsg.content);
           setCategory("todos");
           setQuery("");
+          shopRef.current?.scrollTo({ top: 0, behavior: "smooth" });
         }
         if (data.compareProductIds.length >= 2) setCompareIds(data.compareProductIds);
         if (data.cartActions.length > 0) {
@@ -144,8 +156,34 @@ export default function Home() {
       />
 
       <div className="flex min-h-0 flex-1">
-        {/* Vitrine e carrinho ocupam a tela inteira por padrão */}
+        {/*
+          Chat aberto: no celular cobre a tela como um modal; no desktop (lg) vira uma coluna
+          fixa ao lado da vitrine, para a loja continuar visível enquanto se reorganiza.
+        */}
+        {chatOpen && (
+          <section
+            aria-label="Conversa com a INTUA"
+            className="fixed inset-x-0 bottom-0 top-14 z-50 flex flex-col overflow-hidden rounded-t-2xl bg-navy shadow-2xl lg:static lg:z-auto lg:w-[400px] lg:shrink-0 lg:rounded-none lg:border-r lg:border-white/10 lg:shadow-none"
+          >
+            <Chat
+              messages={messages}
+              loading={loading}
+              suggested={suggested}
+              handoff={handoff}
+              mode={mode}
+              onSend={send}
+              onViewShop={showShop}
+              onClose={() => setChatOpen(false)}
+              onAdd={addToCart}
+              onSetQty={setQty}
+              cart={cart}
+            />
+          </section>
+        )}
+
+        {/* Vitrine e carrinho */}
         <section
+          ref={shopRef}
           aria-label="Vitrine e carrinho"
           className="min-h-0 flex-1 overflow-y-auto bg-surface"
         >
@@ -169,6 +207,11 @@ export default function Home() {
             onSetQty={setQty}
             onExplain={setExplainId}
             onCloseCompare={() => setCompareIds([])}
+            intent={intent}
+            onAsk={(text) => {
+              setChatOpen(true);
+              void send(text);
+            }}
           />
         </section>
       </div>
@@ -221,28 +264,6 @@ export default function Home() {
             </span>
           </button>
         </div>
-      )}
-
-      {/* Janela de chat aberta: no PC flutua no canto inferior direito; no mobile abre como modal sobreposto */}
-      {chatOpen && (
-        <section
-          aria-label="Conversa com a INTUA"
-          className="fixed inset-x-0 bottom-0 top-14 z-50 flex flex-col overflow-hidden rounded-t-2xl bg-navy shadow-2xl sm:inset-x-auto sm:bottom-6 sm:right-6 sm:top-auto sm:h-[620px] sm:max-h-[calc(100dvh-5rem)] sm:w-[420px] sm:rounded-2xl sm:border sm:border-white/10"
-        >
-          <Chat
-            messages={messages}
-            loading={loading}
-            suggested={suggested}
-            handoff={handoff}
-            mode={mode}
-            onSend={send}
-            onViewShop={() => setChatOpen(false)}
-            onClose={() => setChatOpen(false)}
-            onAdd={addToCart}
-            onSetQty={setQty}
-            cart={cart}
-          />
-        </section>
       )}
 
       {/* Navegação inferior para celular */}
