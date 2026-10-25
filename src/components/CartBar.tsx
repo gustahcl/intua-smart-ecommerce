@@ -42,13 +42,8 @@ export function CartBar({ cart, open, onToggle, onSetQty, onClear }: Props) {
   const [paymentMethod, setPaymentMethod] = useState<"pix" | "card">("pix");
   const [pixCopied, setPixCopied] = useState(false);
 
-  // Reseta para a cesta sempre que abrir
-  useEffect(() => {
-    if (open) {
-      setStep("cart");
-      setPixCopied(false);
-    }
-  }, [open]);
+  // O estado do checkout reinicia a cada abertura porque a página só monta
+  // este componente enquanto a cesta está aberta (ver page.tsx).
 
   // Fechar com a tecla Escape
   useEffect(() => {

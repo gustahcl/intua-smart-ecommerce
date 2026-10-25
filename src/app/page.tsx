@@ -149,15 +149,18 @@ export default function Home() {
           aria-label="Vitrine e carrinho"
           className="min-h-0 flex-1 overflow-y-auto bg-surface"
         >
-          <CartBar
-            cart={cart}
-            open={cartOpen}
-            checkoutNote={checkoutNote}
-            onToggle={() => setCartOpen((o) => !o)}
-            onSetQty={setQty}
-            onClear={() => setCart({})}
-            onCheckout={() => setCheckoutNote(true)}
-          />
+          {/* Montado só quando aberto: assim o checkout sempre recomeça pela cesta. */}
+          {cartOpen && (
+            <CartBar
+              cart={cart}
+              open
+              checkoutNote={checkoutNote}
+              onToggle={() => setCartOpen((o) => !o)}
+              onSetQty={setQty}
+              onClear={() => setCart({})}
+              onCheckout={() => setCheckoutNote(true)}
+            />
+          )}
           <Showcase
             cart={cart}
             recommended={recommended}
