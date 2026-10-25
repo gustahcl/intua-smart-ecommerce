@@ -1,9 +1,12 @@
 "use client";
 
-import { ArrowRight, Send, Sparkles, Stethoscope, X } from "lucide-react";
+import { ArrowRight, Minus, Plus, Send, ShoppingCart, Sparkles, Star, Stethoscope, X } from "lucide-react";
 import Image from "next/image";
 import { useEffect, useRef, useState } from "react";
+import { brl, discountPct, getProduct } from "@/lib/catalog";
+import type { Cart } from "@/lib/cart";
 import { cx } from "@/lib/cx";
+import { ProductVisual } from "./ProductVisual";
 
 export interface UiMessage {
   id: number;
@@ -21,6 +24,9 @@ interface Props {
   onSend: (text: string) => void;
   onViewShop: () => void;
   onClose?: () => void;
+  onAdd?: (id: number) => void;
+  onSetQty?: (id: number, qty: number) => void;
+  cart?: Cart;
 }
 
 const STATUS = ["Entendendo o que você precisa…", "Consultando o catálogo…", "Preparando recomendações…"];
@@ -42,6 +48,112 @@ function Avatar({ size = 32 }: { size?: number }) {
       className="shrink-0 rounded-full ring-2 ring-ai/70"
       style={{ width: size, height: size }}
     />
+  );
+}
+
+function MiniStars({ rating }: { rating: number }) {
+  return (
+    <span className="flex items-center gap-0.5" aria-label={`Avaliação ${rating} de 5`}>
+      {[1, 2, 3, 4, 5].map((i) => (
+        <Star
+          key={i}
+          className={cx("h-2 w-2", i <= Math.round(rating) ? "fill-amber-400 text-amber-400" : "text-slate-300")}
+        />
+      ))}
+    </span>
+  );
+}
+
+/** Card de produto compacto renderizado diretamente dentro da conversa */
+function ChatProductCard({
+  productId,
+  qty,
+  onAdd,
+  onSetQty,
+}: {
+  productId: number;
+  qty: number;
+  onAdd?: (id: number) => void;
+  onSetQty?: (id: number, qty: number) => void;
+}) {
+  const p = getProduct(productId);
+  if (!p) return null;
+
+  const discount = discountPct(p);
+  const promo = discount > 0;
+
+  return (
+    <div className="flex w-[128px] shrink-0 snap-start flex-col rounded-xl border border-white/10 bg-white p-2 text-slate-800 shadow-sm">
+      {/* Imagem do produto com badge de desconto */}
+      <div className="relative overflow-hidden rounded-lg bg-slate-50">
+        <ProductVisual product={p} className="aspect-square w-full" />
+        {promo && (
+          <span className="absolute left-1 top-1 rounded bg-tag px-1 py-0.2 text-[8.5px] font-bold text-promo">
+            {discount}% OFF
+          </span>
+        )}
+      </div>
+
+      {/* Título do produto */}
+      <h4 className="mt-1.5 line-clamp-2 h-[26px] text-[10px] font-medium leading-[13px] text-slate-800">
+        {p.name}
+      </h4>
+
+      {/* Avaliação e Marca */}
+      <div className="mt-0.5 flex items-center justify-between">
+        <span className="text-[9px] font-bold uppercase text-slate-500">{p.brand}</span>
+        <div className="flex items-center gap-0.5">
+          <MiniStars rating={p.rating} />
+        </div>
+      </div>
+
+      {/* Preço */}
+      <div className="mt-1">
+        <div className="h-2.5 text-[9px] leading-none">
+          {promo ? (
+            <span className="text-slate-400 line-through">{brl(p.originalPrice!)}</span>
+          ) : (
+            <span className="invisible select-none" aria-hidden="true">&nbsp;</span>
+          )}
+        </div>
+        <div className={cx("font-bold leading-tight", promo ? "text-[13px] text-promo" : "text-[13px] text-price")}>
+          {brl(p.price)}
+        </div>
+      </div>
+
+      {/* Botão de Adicionar / Contador de Quantidade */}
+      <div className="mt-1.5 pt-0.5">
+        {qty === 0 ? (
+          <button
+            type="button"
+            onClick={() => onAdd?.(p.id)}
+            className="flex h-6 w-full items-center justify-center gap-1 rounded-full bg-brand text-[10px] font-bold text-white transition-colors hover:bg-brand-700 active:scale-95 shadow-sm"
+          >
+            <ShoppingCart className="h-2.5 w-2.5" /> Adicionar
+          </button>
+        ) : (
+          <div className="flex h-6 items-center justify-between rounded-full border border-brand px-1">
+            <button
+              type="button"
+              aria-label="Diminuir"
+              onClick={() => onSetQty?.(p.id, qty - 1)}
+              className="flex h-4 w-4 items-center justify-center rounded-full text-brand hover:bg-tag"
+            >
+              <Minus className="h-2.5 w-2.5" />
+            </button>
+            <span className="text-[11px] font-bold text-brand">{qty}</span>
+            <button
+              type="button"
+              aria-label="Aumentar"
+              onClick={() => onSetQty?.(p.id, qty + 1)}
+              className="flex h-4 w-4 items-center justify-center rounded-full text-brand hover:bg-tag"
+            >
+              <Plus className="h-2.5 w-2.5" />
+            </button>
+          </div>
+        )}
+      </div>
+    </div>
   );
 }
 
@@ -97,7 +209,19 @@ function HandoffCard() {
   );
 }
 
-export function Chat({ messages, loading, suggested, handoff, mode, onSend, onViewShop, onClose }: Props) {
+export function Chat({
+  messages,
+  loading,
+  suggested,
+  handoff,
+  mode,
+  onSend,
+  onViewShop,
+  onClose,
+  onAdd,
+  onSetQty,
+  cart,
+}: Props) {
   const [draft, setDraft] = useState("");
   const bottomRef = useRef<HTMLDivElement>(null);
 
@@ -171,19 +295,36 @@ export function Chat({ messages, loading, suggested, handoff, mode, onSend, onVi
           m.role === "assistant" ? (
             <div key={m.id} className="intua-in flex items-start gap-2">
               <Avatar />
-              <div className="max-w-[85%]">
+              <div className="min-w-0 max-w-[88%] flex-1">
+                {/* Balão de texto */}
                 <p className="whitespace-pre-wrap rounded-2xl rounded-tl-sm bg-white/10 px-3.5 py-2.5 text-sm leading-relaxed">
                   {m.content}
                 </p>
+
+                {/* Cards dos produtos sugeridos renderizados diretamente no chat */}
                 {m.productIds && m.productIds.length > 0 && (
-                  <button
-                    type="button"
-                    onClick={onViewShop}
-                    className="mt-1.5 flex items-center gap-1 text-xs font-medium text-ai hover:underline"
-                  >
-                    Ver {m.productIds.length} {m.productIds.length === 1 ? "produto" : "produtos"} na vitrine
-                    <ArrowRight className="h-3.5 w-3.5" />
-                  </button>
+                  <div className="mt-2.5">
+                    <div className="intua-scroll flex gap-2.5 overflow-x-auto pb-2 pt-1 snap-x -mx-1 px-1">
+                      {m.productIds.map((id) => (
+                        <ChatProductCard
+                          key={id}
+                          productId={id}
+                          qty={cart?.[id] ?? 0}
+                          onAdd={onAdd}
+                          onSetQty={onSetQty}
+                        />
+                      ))}
+                    </div>
+
+                    <button
+                      type="button"
+                      onClick={onViewShop}
+                      className="mt-1 flex items-center gap-1 text-xs font-medium text-ai hover:underline"
+                    >
+                      Ver {m.productIds.length} {m.productIds.length === 1 ? "produto" : "produtos"} na vitrine
+                      <ArrowRight className="h-3.5 w-3.5" />
+                    </button>
+                  </div>
                 )}
               </div>
             </div>

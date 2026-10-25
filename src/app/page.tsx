@@ -233,6 +233,9 @@ export default function Home() {
             onSend={send}
             onViewShop={() => setChatOpen(false)}
             onClose={() => setChatOpen(false)}
+            onAdd={addToCart}
+            onSetQty={setQty}
+            cart={cart}
           />
         </section>
       )}
