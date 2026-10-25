@@ -12,23 +12,32 @@ export interface Provider {
   model: string;
 }
 
-/** Provedores configurados, na ordem de tentativa: Groq, depois Gemini. */
+/**
+ * Provedores configurados, na ordem de tentativa: Gemini, depois Groq.
+ * Nos testes, o Gemini lite chamou as ferramentas em todos os fluxos; o gpt-oss do Groq
+ * às vezes respondia só em texto (sem atualizar a vitrine nem acionar o farmacêutico)
+ * e bate no limite gratuito de 8 mil tokens por minuto. Por isso o Groq virou reserva.
+ */
 export function configuredProviders(): Provider[] {
   const list: Provider[] = [];
-  if (process.env.GROQ_API_KEY) {
-    list.push({
-      name: "groq",
-      url: process.env.GROQ_BASE_URL || "https://api.groq.com/openai/v1/chat/completions",
-      apiKey: process.env.GROQ_API_KEY,
-      model: process.env.GROQ_MODEL || "llama-3.3-70b-versatile",
-    });
-  }
   if (process.env.GEMINI_API_KEY) {
     list.push({
       name: "gemini",
       url: process.env.GEMINI_BASE_URL || "https://generativelanguage.googleapis.com/v1beta/openai/chat/completions",
       apiKey: process.env.GEMINI_API_KEY,
-      model: process.env.GEMINI_MODEL || "gemini-2.5-flash",
+      // gemini-2.5-flash não está mais disponível para chaves novas. A versão lite tem cota
+      // própria no plano gratuito (o gemini-3.5-flash só permite 20 pedidos por dia), lê fotos
+      // e chama ferramentas.
+      model: process.env.GEMINI_MODEL || "gemini-3.5-flash-lite",
+    });
+  }
+  if (process.env.GROQ_API_KEY) {
+    list.push({
+      name: "groq",
+      url: process.env.GROQ_BASE_URL || "https://api.groq.com/openai/v1/chat/completions",
+      apiKey: process.env.GROQ_API_KEY,
+      // llama-3.3-70b-versatile foi descontinuado no Groq.
+      model: process.env.GROQ_MODEL || "openai/gpt-oss-120b",
     });
   }
   return list;
@@ -51,6 +60,14 @@ interface Completion {
 
 const TIMEOUT_MS = 15_000;
 
+/**
+ * Os modelos atuais "pensam" antes de responder e esse raciocínio consome max_tokens.
+ * Com limite baixo, a resposta vinha cortada. Raciocínio baixo deixa a resposta rápida
+ * e sobra espaço para o texto final.
+ */
+const MAX_TOKENS = 2048;
+const REASONING_EFFORT = "low";
+
 export async function complete(p: Provider, messages: LlmMessage[], tools: ToolDef[]) {
   const res = await fetch(p.url, {
     method: "POST",
@@ -61,7 +78,8 @@ export async function complete(p: Provider, messages: LlmMessage[], tools: ToolD
       tools: tools.map((t) => ({ type: "function", function: t })),
       tool_choice: "auto",
       temperature: 0.3,
-      max_tokens: 1024,
+      max_tokens: MAX_TOKENS,
+      reasoning_effort: REASONING_EFFORT,
     }),
     signal: AbortSignal.timeout(TIMEOUT_MS),
   });
@@ -121,7 +139,8 @@ export async function readPhoto(p: Provider, dataUrl: string): Promise<PhotoRead
         },
       ],
       temperature: 0,
-      max_tokens: 300,
+      max_tokens: MAX_TOKENS,
+      reasoning_effort: REASONING_EFFORT,
     }),
     signal: AbortSignal.timeout(TIMEOUT_MS),
   });
