@@ -107,7 +107,7 @@ export function ProductCard({ product: p, quantity, reason, highlighted, onAdd, 
         <button
           type="button"
           onClick={() => onExplain(p.id)}
-          className="flex h-4.5 items-center gap-1 self-start text-left text-[11px] font-medium text-ai-700 hover:underline"
+          className="flex h-4.5 max-w-full items-center gap-1 self-start text-left text-[11px] font-medium text-ai-700 hover:underline"
         >
           <Sparkles className="h-3 w-3 shrink-0" />
           <span className="truncate">{reason ? "Por que a INTUA recomendou?" : "Perguntar à INTUA"}</span>
