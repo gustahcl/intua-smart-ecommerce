@@ -6,7 +6,7 @@ Assistente de compras com IA para o e-commerce da Pague Menos. O cliente diz o q
 
 **Demo:** https://intua-smart-ecommerce.vercel.app
 
-**Time:** _(preencher com os nomes dos integrantes)_
+**Time 10:** Caio Lucas Laurindo da Silva, Davi Pereira do Nascimento, Gustavo Henrique Custódio de Lima, Igor Daniel da Silva e Matheus Chaves Leôncio de Lira.
 
 ## O problema
 
