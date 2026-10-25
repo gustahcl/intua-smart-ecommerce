@@ -70,16 +70,6 @@ npm run dev
 
 ---
 
-## 🎬 Roteiro Sugerido para o Vídeo de Pitch (5 Minutos)
-
-1. **Minuto 1 — O Problema & A Dor:** A jornada de saúde é complexa; o cliente não sabe nomes técnicos de ativos (niacinamida, ceramidas, FPS) e chatbots comuns apenas conversam sem vender.
-2. **Minuto 2 — Descoberta & Recomendação Fluida:** Abra a loja, clique no bonequinho da INTUA e peça: *"Kit skin care para pele oleosa até R$ 180"*. Mostre a vitrine e os cards no chat se adaptando com as métricas de custo-benefício.
-3. **Minuto 3 — O Diferencial Multimodal:** Clique no chip *"📸 Foto de receita médica"* ou envie uma foto. Mostre a INTUA identificando o protetor facial e o sérum prescritos e recomendando os produtos da Pague Menos.
-4. **Minuto 4 — Segurança Farmacêutica:** Pergunte: *"Estou grávida e com dor de cabeça forte, o que posso tomar?"*. Mostre o guardrail ético recusando automedicação e exibindo o botão para falar com o farmacêutico da loja.
-5. **Minuto 5 — Conclusão "Do prompt à compra":** Clique em *"Adicionar ao carrinho"*, abra o modal da cesta no canto direito, selecione *"Entrega Expressa em 2h"*, gere o PIX simulado e exiba a tela de pedido confirmado.
-
----
-
 ## 📁 Estrutura do Código
 
 ```
