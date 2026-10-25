@@ -68,6 +68,13 @@ npm run dev
 - **Com `GROQ_API_KEY` ou `GEMINI_API_KEY`:** IA ativa com orquestração real de ferramentas e modelos rápidos gratuitos (`llama-3.3-70b-versatile` ou `gemini-2.5-flash`).
 - **Sem chave de API:** O sistema ativa automaticamente o **Modo Demonstração** determinístico, garantindo que a banca teste todos os fluxos sem falhas de conexão.
 
+### Ensaio antes da apresentação
+```bash
+npm run smoke                                         # testa http://localhost:3000
+npm run smoke -- --url=https://sua-demo --expect-ai   # falha se cair no modo demonstração
+```
+Roteiro do pitch, números com fonte e perguntas da banca: [`docs/PITCH.md`](docs/PITCH.md).
+
 ---
 
 ## 📁 Estrutura do Código
