@@ -65,24 +65,25 @@ export const INITIAL_CHIPS = [
  */
 function shrinkImage(file: File, maxSide = 1024): Promise<string> {
   return new Promise((resolve, reject) => {
-    const url = URL.createObjectURL(file);
-    const img = new window.Image();
-    img.onload = () => {
-      const scale = Math.min(1, maxSide / Math.max(img.width, img.height));
-      const canvas = document.createElement("canvas");
-      canvas.width = Math.round(img.width * scale);
-      canvas.height = Math.round(img.height * scale);
-      const ctx = canvas.getContext("2d");
-      URL.revokeObjectURL(url);
-      if (!ctx) return reject(new Error("canvas indisponível"));
-      ctx.drawImage(img, 0, 0, canvas.width, canvas.height);
-      resolve(canvas.toDataURL("image/jpeg", 0.8));
+    // Lê como data: URL, e não blob:, porque a CSP de produção só libera img-src 'self' data:.
+    const reader = new FileReader();
+    reader.onerror = () => reject(new Error("falha ao ler o arquivo"));
+    reader.onload = () => {
+      const img = new window.Image();
+      img.onload = () => {
+        const scale = Math.min(1, maxSide / Math.max(img.width, img.height));
+        const canvas = document.createElement("canvas");
+        canvas.width = Math.round(img.width * scale);
+        canvas.height = Math.round(img.height * scale);
+        const ctx = canvas.getContext("2d");
+        if (!ctx) return reject(new Error("canvas indisponível"));
+        ctx.drawImage(img, 0, 0, canvas.width, canvas.height);
+        resolve(canvas.toDataURL("image/jpeg", 0.8));
+      };
+      img.onerror = () => reject(new Error("imagem inválida"));
+      img.src = reader.result as string;
     };
-    img.onerror = () => {
-      URL.revokeObjectURL(url);
-      reject(new Error("imagem inválida"));
-    };
-    img.src = url;
+    reader.readAsDataURL(file);
   });
 }
 
