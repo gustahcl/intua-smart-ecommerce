@@ -56,4 +56,5 @@ for (const f of FLOWS) {
 
 console.log(`\n${failures === 0 ? "Tudo certo." : `${failures} fluxo(s) com problema.`}`);
 console.log("A leitura de foto não entra aqui: teste à mão com uma foto real de embalagem.");
-process.exit(failures === 0 ? 0 : 1);
+// exitCode em vez de process.exit(): no Windows, sair à força com conexões abertas derruba o Node.
+process.exitCode = failures === 0 ? 0 : 1;
