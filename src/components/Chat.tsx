@@ -1,14 +1,30 @@
 "use client";
 
-import { ArrowRight, Send, Sparkles, Stethoscope, X } from "lucide-react";
+import {
+  ArrowRight,
+  Camera,
+  Minus,
+  Paperclip,
+  Plus,
+  Send,
+  ShoppingCart,
+  Sparkles,
+  Star,
+  Stethoscope,
+  X,
+} from "lucide-react";
 import Image from "next/image";
 import { useEffect, useRef, useState } from "react";
+import { brl, discountPct, getProduct } from "@/lib/catalog";
+import type { Cart } from "@/lib/cart";
 import { cx } from "@/lib/cx";
+import { ProductVisual } from "./ProductVisual";
 
 export interface UiMessage {
   id: number;
   role: "user" | "assistant";
   content: string;
+  image?: string;
   productIds?: number[];
 }
 
@@ -18,14 +34,23 @@ interface Props {
   suggested: string[];
   handoff: string | null;
   mode: "ai" | "demo" | null;
-  onSend: (text: string) => void;
+  onSend: (text: string, image?: string) => void;
   onViewShop: () => void;
   onClose?: () => void;
+  onAdd?: (id: number) => void;
+  onSetQty?: (id: number, qty: number) => void;
+  cart?: Cart;
 }
 
-const STATUS = ["Entendendo o que você precisa…", "Consultando o catálogo…", "Preparando recomendações…"];
+const STATUS = [
+  "Entendendo o que você precisa…",
+  "Processando foto e consultando ativos…",
+  "Consultando o catálogo da Pague Menos…",
+  "Preparando recomendações…",
+];
 
 export const INITIAL_CHIPS = [
+  "📸 Foto de receita médica",
   "Quero um whey protein",
   "Protetor solar para pele oleosa",
   "Kit skin care pele oleosa até R$ 180",
@@ -45,11 +70,117 @@ function Avatar({ size = 32 }: { size?: number }) {
   );
 }
 
+function MiniStars({ rating }: { rating: number }) {
+  return (
+    <span className="flex items-center gap-0.5" aria-label={`Avaliação ${rating} de 5`}>
+      {[1, 2, 3, 4, 5].map((i) => (
+        <Star
+          key={i}
+          className={cx("h-2 w-2", i <= Math.round(rating) ? "fill-amber-400 text-amber-400" : "text-slate-300")}
+        />
+      ))}
+    </span>
+  );
+}
+
+/** Card de produto compacto renderizado diretamente dentro da conversa */
+function ChatProductCard({
+  productId,
+  qty,
+  onAdd,
+  onSetQty,
+}: {
+  productId: number;
+  qty: number;
+  onAdd?: (id: number) => void;
+  onSetQty?: (id: number, qty: number) => void;
+}) {
+  const p = getProduct(productId);
+  if (!p) return null;
+
+  const discount = discountPct(p);
+  const promo = discount > 0;
+
+  return (
+    <div className="flex w-[128px] shrink-0 snap-start flex-col rounded-xl border border-white/10 bg-white p-2 text-slate-800 shadow-sm">
+      {/* Imagem do produto com badge de desconto */}
+      <div className="relative overflow-hidden rounded-lg bg-slate-50">
+        <ProductVisual product={p} className="aspect-square w-full" />
+        {promo && (
+          <span className="absolute left-1 top-1 rounded bg-tag px-1 py-0.2 text-[8.5px] font-bold text-promo">
+            {discount}% OFF
+          </span>
+        )}
+      </div>
+
+      {/* Título do produto */}
+      <h4 className="mt-1.5 line-clamp-2 h-[26px] text-[10px] font-medium leading-[13px] text-slate-800">
+        {p.name}
+      </h4>
+
+      {/* Avaliação e Marca */}
+      <div className="mt-0.5 flex items-center justify-between">
+        <span className="text-[9px] font-bold uppercase text-slate-500">{p.brand}</span>
+        <div className="flex items-center gap-0.5">
+          <MiniStars rating={p.rating} />
+        </div>
+      </div>
+
+      {/* Preço */}
+      <div className="mt-1">
+        <div className="h-2.5 text-[9px] leading-none">
+          {promo ? (
+            <span className="text-slate-400 line-through">{brl(p.originalPrice!)}</span>
+          ) : (
+            <span className="invisible select-none" aria-hidden="true">&nbsp;</span>
+          )}
+        </div>
+        <div className={cx("font-bold leading-tight", promo ? "text-[13px] text-promo" : "text-[13px] text-price")}>
+          {brl(p.price)}
+        </div>
+      </div>
+
+      {/* Botão de Adicionar / Contador de Quantidade */}
+      <div className="mt-1.5 pt-0.5">
+        {qty === 0 ? (
+          <button
+            type="button"
+            onClick={() => onAdd?.(p.id)}
+            className="flex h-6 w-full items-center justify-center gap-1 rounded-full bg-brand text-[10px] font-bold text-white transition-colors hover:bg-brand-700 active:scale-95 shadow-sm"
+          >
+            <ShoppingCart className="h-2.5 w-2.5" /> Adicionar
+          </button>
+        ) : (
+          <div className="flex h-6 items-center justify-between rounded-full border border-brand px-1">
+            <button
+              type="button"
+              aria-label="Diminuir"
+              onClick={() => onSetQty?.(p.id, qty - 1)}
+              className="flex h-4 w-4 items-center justify-center rounded-full text-brand hover:bg-tag"
+            >
+              <Minus className="h-2.5 w-2.5" />
+            </button>
+            <span className="text-[11px] font-bold text-brand">{qty}</span>
+            <button
+              type="button"
+              aria-label="Aumentar"
+              onClick={() => onSetQty?.(p.id, qty + 1)}
+              className="flex h-4 w-4 items-center justify-center rounded-full text-brand hover:bg-tag"
+            >
+              <Plus className="h-2.5 w-2.5" />
+            </button>
+          </div>
+        )}
+      </div>
+    </div>
+  );
+}
+
 /** Indicador de "pensando": só existe enquanto carrega, então o contador reinicia sozinho. */
 function Thinking() {
   const [idx, setIdx] = useState(0);
   useEffect(() => {
-    const t = setInterval(() => setIdx((i) => Math.min(i + 1, STATUS.length - 1)), 1400);
+    const t = setInterval(() => setIdx((i) => Math.min(i + 1, STATUS.length - 1)), 1300);
     return () => clearInterval(t);
   }, []);
 
@@ -97,9 +228,23 @@ function HandoffCard() {
   );
 }
 
-export function Chat({ messages, loading, suggested, handoff, mode, onSend, onViewShop, onClose }: Props) {
+export function Chat({
+  messages,
+  loading,
+  suggested,
+  handoff,
+  mode,
+  onSend,
+  onViewShop,
+  onClose,
+  onAdd,
+  onSetQty,
+  cart,
+}: Props) {
   const [draft, setDraft] = useState("");
+  const [attachedImage, setAttachedImage] = useState<string | null>(null);
   const bottomRef = useRef<HTMLDivElement>(null);
+  const fileInputRef = useRef<HTMLInputElement>(null);
 
   useEffect(() => {
     bottomRef.current?.scrollIntoView({ behavior: "smooth", block: "end" });
@@ -107,11 +252,34 @@ export function Chat({ messages, loading, suggested, handoff, mode, onSend, onVi
 
   const chips = suggested.length > 0 ? suggested : messages.length <= 1 ? INITIAL_CHIPS : [];
 
+  const handleFileChange = (e: React.ChangeEvent<HTMLInputElement>) => {
+    const file = e.target.files?.[0];
+    if (!file) return;
+    const reader = new FileReader();
+    reader.onload = () => {
+      setAttachedImage(reader.result as string);
+    };
+    reader.readAsDataURL(file);
+    e.target.value = "";
+  };
+
+  const handleChipClick = (c: string) => {
+    if (c.includes("Foto de receita")) {
+      onSend(
+        "Tenho esta foto de receita médica prescrevendo protetor solar facial toque seco FPS 60 e sérum de vitamina C. Você tem no catálogo?",
+        "/brand/mascote-480.jpg",
+      );
+    } else {
+      onSend(c);
+    }
+  };
+
   const submit = (e: React.FormEvent) => {
     e.preventDefault();
-    if (!draft.trim() || loading) return;
-    onSend(draft);
+    if ((!draft.trim() && !attachedImage) || loading) return;
+    onSend(draft || "Analise esta imagem enviada:", attachedImage ?? undefined);
     setDraft("");
+    setAttachedImage(null);
   };
 
   return (
@@ -162,7 +330,7 @@ export function Chat({ messages, loading, suggested, handoff, mode, onSend, onVi
               className="h-24 w-24 shrink-0 rounded-xl"
             />
             <p className="text-sm leading-snug text-white/80">
-              Eu encontro, comparo e ajudo você a escolher. Conte o que precisa, sem se preocupar com nomes técnicos.
+              Eu encontro, comparo e ajudo você a escolher. Conte o que precisa ou envie a foto de uma receita ou produto.
             </p>
           </div>
         )}
@@ -171,27 +339,59 @@ export function Chat({ messages, loading, suggested, handoff, mode, onSend, onVi
           m.role === "assistant" ? (
             <div key={m.id} className="intua-in flex items-start gap-2">
               <Avatar />
-              <div className="max-w-[85%]">
+              <div className="min-w-0 max-w-[88%] flex-1">
+                {/* Balão de texto da IA */}
                 <p className="whitespace-pre-wrap rounded-2xl rounded-tl-sm bg-white/10 px-3.5 py-2.5 text-sm leading-relaxed">
                   {m.content}
                 </p>
+
+                {/* Cards dos produtos sugeridos renderizados diretamente no chat */}
                 {m.productIds && m.productIds.length > 0 && (
-                  <button
-                    type="button"
-                    onClick={onViewShop}
-                    className="mt-1.5 flex items-center gap-1 text-xs font-medium text-ai hover:underline"
-                  >
-                    Ver {m.productIds.length} {m.productIds.length === 1 ? "produto" : "produtos"} na vitrine
-                    <ArrowRight className="h-3.5 w-3.5" />
-                  </button>
+                  <div className="mt-2.5">
+                    <div className="intua-scroll flex gap-2.5 overflow-x-auto pb-2 pt-1 snap-x -mx-1 px-1">
+                      {m.productIds.map((id) => (
+                        <ChatProductCard
+                          key={id}
+                          productId={id}
+                          qty={cart?.[id] ?? 0}
+                          onAdd={onAdd}
+                          onSetQty={onSetQty}
+                        />
+                      ))}
+                    </div>
+
+                    <button
+                      type="button"
+                      onClick={onViewShop}
+                      className="mt-1 flex items-center gap-1 text-xs font-medium text-ai hover:underline"
+                    >
+                      Ver {m.productIds.length} {m.productIds.length === 1 ? "produto" : "produtos"} na vitrine
+                      <ArrowRight className="h-3.5 w-3.5" />
+                    </button>
+                  </div>
                 )}
               </div>
             </div>
           ) : (
             <div key={m.id} className="intua-in flex justify-end">
-              <p className="max-w-[85%] whitespace-pre-wrap rounded-2xl rounded-tr-sm bg-brand px-3.5 py-2.5 text-sm leading-relaxed">
-                {m.content}
-              </p>
+              <div className="max-w-[85%] flex flex-col items-end">
+                {m.image && (
+                  <div className="relative mb-1.5 h-32 w-44 overflow-hidden rounded-xl border border-white/20 shadow-md">
+                    <Image
+                      src={m.image}
+                      alt="Anexo do usuário"
+                      fill
+                      sizes="180px"
+                      className="object-cover"
+                    />
+                  </div>
+                )}
+                {m.content && (
+                  <p className="whitespace-pre-wrap rounded-2xl rounded-tr-sm bg-brand px-3.5 py-2.5 text-sm leading-relaxed text-white">
+                    {m.content}
+                  </p>
+                )}
+              </div>
             </div>
           ),
         )}
@@ -209,7 +409,7 @@ export function Chat({ messages, loading, suggested, handoff, mode, onSend, onVi
               <button
                 key={c}
                 type="button"
-                onClick={() => onSend(c)}
+                onClick={() => handleChipClick(c)}
                 className="rounded-full border border-ai/50 px-3 py-1.5 text-xs font-medium text-ai transition-colors hover:bg-ai/10"
               >
                 {c}
@@ -217,7 +417,44 @@ export function Chat({ messages, loading, suggested, handoff, mode, onSend, onVi
             ))}
           </div>
         )}
+
+        {/* Pré-visualização da imagem anexada antes do envio */}
+        {attachedImage && (
+          <div className="mb-2 flex items-center gap-2 rounded-xl bg-white/10 p-2">
+            <div className="relative h-12 w-12 overflow-hidden rounded-lg border border-white/20">
+              <Image src={attachedImage} alt="Anexo" fill className="object-cover" />
+            </div>
+            <span className="flex-1 text-xs text-white/80 truncate">Foto anexada para análise</span>
+            <button
+              type="button"
+              onClick={() => setAttachedImage(null)}
+              className="flex h-6 w-6 items-center justify-center rounded-full bg-white/20 text-white hover:bg-white/30"
+            >
+              <X className="h-3.5 w-3.5" />
+            </button>
+          </div>
+        )}
+
         <form onSubmit={submit} className="flex items-center gap-2">
+          {/* Input oculto de upload de imagem */}
+          <input
+            type="file"
+            ref={fileInputRef}
+            onChange={handleFileChange}
+            accept="image/*"
+            className="hidden"
+          />
+
+          {/* Botão de câmera/anexo */}
+          <button
+            type="button"
+            onClick={() => fileInputRef.current?.click()}
+            title="Enviar foto de receita médica ou embalagem"
+            className="flex h-10 w-10 shrink-0 items-center justify-center rounded-full bg-white/10 text-white transition-colors hover:bg-white/20 active:scale-95"
+          >
+            <Camera className="h-4.5 w-4.5 text-ai" />
+          </button>
+
           <label className="sr-only" htmlFor="intua-input">
             Mensagem para a INTUA
           </label>
@@ -226,13 +463,13 @@ export function Chat({ messages, loading, suggested, handoff, mode, onSend, onVi
             value={draft}
             onChange={(e) => setDraft(e.target.value)}
             maxLength={500}
-            placeholder="Conte o que você procura…"
+            placeholder={attachedImage ? "Adicione uma mensagem ou envie…" : "Escreva ou envie uma foto…"}
             autoComplete="off"
             className="min-w-0 flex-1 rounded-full bg-white/10 px-4 py-2.5 text-sm text-white placeholder:text-white/45 focus:outline-none focus:ring-2 focus:ring-ai"
           />
           <button
             type="submit"
-            disabled={loading || !draft.trim()}
+            disabled={loading || (!draft.trim() && !attachedImage)}
             aria-label="Enviar mensagem"
             className="flex h-10 w-10 shrink-0 items-center justify-center rounded-full bg-brand text-white transition-colors hover:bg-brand-700 disabled:opacity-40"
           >
