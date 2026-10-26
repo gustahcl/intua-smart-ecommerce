@@ -1,6 +1,6 @@
 import { NextRequest, NextResponse } from "next/server";
 import { z } from "zod";
-import { runDemo } from "@/lib/demo";
+import { healthHandoff, runDemo } from "@/lib/demo";
 import {
   complete,
   configuredProviders,
@@ -137,6 +137,13 @@ async function runWithProvider(p: Provider, history: ChatMessage[], cart: Cart, 
       const result = args === null ? { erro: "Argumentos não são JSON válido." } : runTool(call.function.name, args, ctx);
       messages.push({ role: "tool", tool_call_id: call.id, content: JSON.stringify(result) });
     }
+  }
+
+  // Rede de segurança: tema de saúde sempre mostra o botão do farmacêutico,
+  // mesmo que o modelo tenha respondido só em texto.
+  if (!ctx.ui.handoff) {
+    const lastUser = [...history].reverse().find((m) => m.role === "user")?.content ?? "";
+    ctx.ui.handoff = healthHandoff(lastUser);
   }
 
   if (!text) {
