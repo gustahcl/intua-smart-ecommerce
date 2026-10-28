@@ -83,6 +83,23 @@ function buildKit(skin: Skin, budget?: number): { items: CatalogProduct[]; skipp
   return { items, skipped };
 }
 
+const HEALTH_TOPIC = "Tema de saúde que precisa de orientação profissional.";
+const PRESCRIPTION = "Pedido envolvendo receita médica.";
+
+/**
+ * Detecta temas de saúde que sempre vão para o farmacêutico. Usado no modo demo e como
+ * rede de segurança no modo IA: se o modelo esquecer de chamar encaminhar_farmaceutico,
+ * o botão de atendimento aparece mesmo assim.
+ */
+export function healthHandoff(text: string): string | null {
+  const t = normalize(text);
+  if (/(gravida|gestante|gravidez|gestacao|amament|lactante|\bbebes?\b|recem.?nascid|remedio|medicamento|anticoagul|diabet|hipertens|pressao alta|cancer|alergia|\bpintas?\b|sangr|sintoma)/.test(t)) {
+    return HEALTH_TOPIC;
+  }
+  if (/(receita|prescri)/.test(t)) return PRESCRIPTION;
+  return null;
+}
+
 export function runDemo(input: DemoInput): ChatResponse {
   const ui = newUi();
   const cart = new Map(input.cart.map((c) => [c.productId, c.quantity]));
@@ -101,8 +118,9 @@ export function runDemo(input: DemoInput): ChatResponse {
   }
 
   /* 1. Temas sensíveis: encaminha para o farmacêutico, sem recomendar. */
-  if (/(gravida|gestante|gravidez|gestacao|amament|lactante|bebe|recem.?nascid|remedio|medicamento|anticoagul|diabet|hipertens|pressao alta|cancer|alergia|pinta|sangr|sintoma)/.test(t)) {
-    ui.handoff = "Tema de saúde que precisa de orientação profissional.";
+  const risk = healthHandoff(raw);
+  if (risk === HEALTH_TOPIC) {
+    ui.handoff = risk;
     ui.suggested = ["Ver protetores solares", "Ver suplementos"];
     return done(
       "Esse é um assunto em que o melhor caminho é conversar com um farmacêutico da Pague Menos, que pode avaliar o seu caso com segurança. Enquanto isso, posso te ajudar com outros produtos da loja.",
@@ -110,8 +128,8 @@ export function runDemo(input: DemoInput): ChatResponse {
   }
 
   /* 1.5. Receita médica descrita em texto: quem confere prescrição é o farmacêutico. */
-  if (/(receita|prescri)/.test(t)) {
-    ui.handoff = "Pedido envolvendo receita médica.";
+  if (risk === PRESCRIPTION) {
+    ui.handoff = risk;
     ui.suggested = ["Ver protetores solares", "Ver suplementos"];
     return done(
       "Por segurança, eu não leio nem interpreto receitas médicas: quem confere a prescrição é um farmacêutico da Pague Menos. Posso ajudar com dermocosméticos e suplementos.",
